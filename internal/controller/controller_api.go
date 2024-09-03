@@ -114,6 +114,23 @@ func (c *APIController) GetUserOrders(w http.ResponseWriter, r *http.Request) {
 func (c *APIController) GetUserBalance(w http.ResponseWriter, r *http.Request) {
 	log.Infow("GetUserBalance handler called.")
 
+	userBalanceDomain, err := c.userService.GetBalance(r.Context())
+	if err != nil {
+		log.Errorw(
+			"controller_api: get user balance failed",
+			"error", err.Error(),
+		)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	apiResponse := dto.APIGetUserBalanceResponse{
+		Current:   userBalanceDomain.Current,
+		Withdrawn: userBalanceDomain.Withdraw,
+	}
+	json.NewEncoder(w).Encode(apiResponse)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
 

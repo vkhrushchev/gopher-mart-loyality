@@ -249,23 +249,46 @@ func TestAPIController_GetUserBalance(t *testing.T) {
 	apiController := NewAPIController(userServiceMock)
 
 	tests := []struct {
-		name        string
-		c           *APIController
-		epectedCode int
+		name             string
+		setupMocks       func(userServiceMock *mock_service.MockIUserService)
+		expectedResponse *dto.APIGetUserBalanceResponse
+		expectedCode     int
 	}{
 		{
-			name:        "success",
-			epectedCode: http.StatusOK,
+			name: "success",
+			setupMocks: func(userServiceMock *mock_service.MockIUserService) {
+				userServiceMock.EXPECT().
+					GetBalance(gomock.Any()).
+					Return(
+						dto.UserBalanceDomain{
+							Current:  100.5,
+							Withdraw: 10.5,
+						},
+						nil,
+					)
+			},
+			expectedResponse: &dto.APIGetUserBalanceResponse{
+				Current:   100.5,
+				Withdrawn: 10.5,
+			},
+			expectedCode: http.StatusOK,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt.setupMocks(userServiceMock)
+
 			r := httptest.NewRequest(http.MethodGet, "/api/user/balance", nil)
 			w := httptest.NewRecorder()
 
 			apiController.GetUserBalance(w, r)
 
-			assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
+			if w.Result().StatusCode == http.StatusOK {
+				var apiResponse dto.APIGetUserBalanceResponse
+				err := json.Unmarshal(w.Body.Bytes(), &apiResponse)
+				require.NoError(t, err, "unexpected error when parse response")
+			}
 		})
 	}
 }
