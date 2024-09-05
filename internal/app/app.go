@@ -37,7 +37,7 @@ func (a *GopherMartLoylityApp) RegisterHandlers() {
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.JWTAuth)
 
-			r.Post("/orders", a.apiController.PutUserOrders)
+			r.Post("/orders", a.apiController.PutUserOrder)
 			r.Get("/orders", a.apiController.GetUserOrders)
 			r.Get("/balance", a.apiController.GetUserBalance)
 			r.Post("/balance/withdraw", a.apiController.WithdrawUserBalance)

@@ -19,7 +19,8 @@ func TestGopherMartLoylityApp_registerUser(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := controller.NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock)
 
 	app := NewGopherMartLoylityApp("", apiController)
 	app.RegisterHandlers()
@@ -61,7 +62,8 @@ func TestGopherMartLoylityApp_loginUser(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := controller.NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock)
 
 	app := NewGopherMartLoylityApp("", apiController)
 	app.RegisterHandlers()
@@ -103,7 +105,8 @@ func TestGopherMartLoylityApp_putUserOrders(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := controller.NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock)
 
 	app := NewGopherMartLoylityApp("", apiController)
 	app.RegisterHandlers()
@@ -148,7 +151,8 @@ func TestGopherMartLoylityApp_getUserOrders(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := controller.NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock)
 
 	app := NewGopherMartLoylityApp("", apiController)
 	app.RegisterHandlers()
@@ -193,7 +197,8 @@ func TestGopherMartLoylityApp_getUserBalance(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := controller.NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock)
 
 	app := NewGopherMartLoylityApp("", apiController)
 	app.RegisterHandlers()
@@ -238,7 +243,8 @@ func TestGopherMartLoylityApp_withdrawUserBalance(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := controller.NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock)
 
 	app := NewGopherMartLoylityApp("", apiController)
 	app.RegisterHandlers()
@@ -283,7 +289,8 @@ func TestGopherMartLoylityApp_getUserBalanaceWithdrawls(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := controller.NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock)
 
 	app := NewGopherMartLoylityApp("", apiController)
 	app.RegisterHandlers()

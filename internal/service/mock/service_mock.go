@@ -78,3 +78,56 @@ func (mr *MockIUserServiceMockRecorder) RegisterUser(ctx, username, password int
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterUser", reflect.TypeOf((*MockIUserService)(nil).RegisterUser), ctx, username, password)
 }
+
+// MockIOrderService is a mock of IOrderService interface.
+type MockIOrderService struct {
+	ctrl     *gomock.Controller
+	recorder *MockIOrderServiceMockRecorder
+}
+
+// MockIOrderServiceMockRecorder is the mock recorder for MockIOrderService.
+type MockIOrderServiceMockRecorder struct {
+	mock *MockIOrderService
+}
+
+// NewMockIOrderService creates a new mock instance.
+func NewMockIOrderService(ctrl *gomock.Controller) *MockIOrderService {
+	mock := &MockIOrderService{ctrl: ctrl}
+	mock.recorder = &MockIOrderServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockIOrderService) EXPECT() *MockIOrderServiceMockRecorder {
+	return m.recorder
+}
+
+// GetOrders mocks base method.
+func (m *MockIOrderService) GetOrders(ctx context.Context) ([]dto.OrderDomain, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrders", ctx)
+	ret0, _ := ret[0].([]dto.OrderDomain)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrders indicates an expected call of GetOrders.
+func (mr *MockIOrderServiceMockRecorder) GetOrders(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrders", reflect.TypeOf((*MockIOrderService)(nil).GetOrders), ctx)
+}
+
+// PutOrder mocks base method.
+func (m *MockIOrderService) PutOrder(ctx context.Context, orderNumber string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutOrder", ctx, orderNumber)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutOrder indicates an expected call of PutOrder.
+func (mr *MockIOrderServiceMockRecorder) PutOrder(ctx, orderNumber interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutOrder", reflect.TypeOf((*MockIOrderService)(nil).PutOrder), ctx, orderNumber)
+}

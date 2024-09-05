@@ -11,8 +11,9 @@ var log = zap.Must(zap.NewDevelopment()).Sugar()
 
 func main() {
 	userService := service.NewUserService()
+	orderService := service.NewOrderService()
 
-	apiController := controller.NewAPIController(userService)
+	apiController := controller.NewAPIController(userService, orderService)
 
 	app := app.NewGopherMartLoylityApp("", apiController)
 	app.RegisterHandlers()

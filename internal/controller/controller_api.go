@@ -3,19 +3,25 @@ package controller
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
+	"regexp"
 
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/dto"
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/service"
 )
 
+var orderNumberRegexp = regexp.MustCompile(`\d{16}`)
+
 type APIController struct {
-	userService service.IUserService
+	userService  service.IUserService
+	orderService service.IOrderService
 }
 
-func NewAPIController(userService service.IUserService) *APIController {
+func NewAPIController(userService service.IUserService, orderService service.IOrderService) *APIController {
 	return &APIController{
-		userService: userService,
+		userService:  userService,
+		orderService: orderService,
 	}
 }
 
@@ -99,10 +105,62 @@ func (c *APIController) LoginUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (c *APIController) PutUserOrders(w http.ResponseWriter, r *http.Request) {
-	log.Infow("AddUserOrders handler called.")
+func (c *APIController) PutUserOrder(w http.ResponseWriter, r *http.Request) {
+	log.Infow("PutUserOrders handler called.")
+	requestBodyBytes, err := io.ReadAll(r.Body)
+	if err != nil && !errors.Is(err, io.EOF) {
+		log.Errorw("controller_api: error when read request body")
+	}
 
-	w.WriteHeader(http.StatusOK)
+	orderNumber := string(requestBodyBytes)
+	matched := orderNumberRegexp.Match([]byte(orderNumber))
+	if !matched {
+		log.Errorw(
+			"controller_api: order number not matched by regexp",
+		)
+
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	exist, err := c.orderService.PutOrder(r.Context(), orderNumber)
+	if err != nil && errors.Is(err, service.ErrOrderWrongNumber) {
+		log.Infow(
+			"controller_api: wrong order number",
+			"order_number", orderNumber,
+		)
+
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		return
+	} else if err != nil && errors.Is(err, service.ErrOrderUploadedByAnotherUser) {
+		log.Infow(
+			"controller_api: order uploaded by another user",
+			"order_number", orderNumber,
+		)
+
+		w.WriteHeader(http.StatusConflict)
+		return
+	} else if err != nil {
+		log.Infow(
+			"controller_api: unexpected internal servcer error",
+			"error", err.Error(),
+		)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if exist {
+		log.Infow(
+			"controller_api: order already uploaded",
+			"order_number", orderNumber,
+		)
+
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	w.WriteHeader(http.StatusAccepted)
 }
 
 func (c *APIController) GetUserOrders(w http.ResponseWriter, r *http.Request) {

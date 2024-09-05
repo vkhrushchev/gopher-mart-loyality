@@ -21,7 +21,8 @@ func TestAPIController_RegisterUser(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock)
 
 	tests := []struct {
 		name         string
@@ -115,7 +116,8 @@ func TestAPIController_LoginUser(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock)
 
 	tests := []struct {
 		name         string
@@ -188,26 +190,66 @@ func TestAPIController_PutUserOrders(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock)
 
 	tests := []struct {
-		name        string
-		c           *APIController
-		epectedCode int
+		name         string
+		orderdNumber string
+		setupMocks   func(orderServiceMock *mock_service.MockIOrderService)
+		expectedCode int
 	}{
 		{
-			name:        "success",
-			epectedCode: http.StatusOK,
+			name:         "success",
+			orderdNumber: "1111222233334444",
+			setupMocks: func(orderServiceMock *mock_service.MockIOrderService) {
+				orderServiceMock.EXPECT().
+					PutOrder(gomock.Any(), gomock.Any()).
+					Return(false, nil)
+			},
+			expectedCode: http.StatusAccepted,
+		},
+		{
+			name:         "exists",
+			orderdNumber: "1111222233334444",
+			setupMocks: func(orderServiceMock *mock_service.MockIOrderService) {
+				orderServiceMock.EXPECT().
+					PutOrder(gomock.Any(), gomock.Any()).
+					Return(true, nil)
+			},
+			expectedCode: http.StatusOK,
+		},
+		{
+			name:         "wrong order number",
+			orderdNumber: "1111222233334444",
+			setupMocks: func(orderServiceMock *mock_service.MockIOrderService) {
+				orderServiceMock.EXPECT().
+					PutOrder(gomock.Any(), gomock.Any()).
+					Return(false, service.ErrOrderWrongNumber)
+			},
+			expectedCode: http.StatusUnprocessableEntity,
+		},
+		{
+			name:         "uploaded by another user",
+			orderdNumber: "1111222233334444",
+			setupMocks: func(orderServiceMock *mock_service.MockIOrderService) {
+				orderServiceMock.EXPECT().
+					PutOrder(gomock.Any(), gomock.Any()).
+					Return(false, service.ErrOrderUploadedByAnotherUser)
+			},
+			expectedCode: http.StatusConflict,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := httptest.NewRequest(http.MethodPost, "/api/user/orders", nil)
+			tt.setupMocks(orderServiceMock)
+
+			r := httptest.NewRequest(http.MethodPost, "/api/user/orders", strings.NewReader(tt.orderdNumber))
 			w := httptest.NewRecorder()
 
-			apiController.PutUserOrders(w, r)
+			apiController.PutUserOrder(w, r)
 
-			assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
 		})
 	}
 }
@@ -217,7 +259,8 @@ func TestAPIController_GetUserOrders(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock)
 
 	tests := []struct {
 		name        string
@@ -246,7 +289,8 @@ func TestAPIController_GetUserBalance(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock)
 
 	tests := []struct {
 		name             string
@@ -298,7 +342,8 @@ func TestAPIController_WithdrawUserBalance(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock)
 
 	tests := []struct {
 		name        string
@@ -327,7 +372,8 @@ func TestAPIController_GetUserBalanaceWithdrawls(t *testing.T) {
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
-	apiController := NewAPIController(userServiceMock)
+	orderServiceMock := mock_service.NewMockIOrderService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock)
 
 	tests := []struct {
 		name        string
