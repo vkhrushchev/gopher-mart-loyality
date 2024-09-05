@@ -1,6 +1,12 @@
 package dto
 
+import "time"
+
 type OrderDomain struct {
+	Number     string
+	Status     OrderStatus
+	Accrual    float64
+	UploadedAt time.Time
 }
 
 type UserBalanceDomain struct {

@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -263,23 +264,80 @@ func TestAPIController_GetUserOrders(t *testing.T) {
 	apiController := NewAPIController(userServiceMock, orderServiceMock)
 
 	tests := []struct {
-		name        string
-		c           *APIController
-		epectedCode int
+		name                string
+		setupMocks          func(orderServiceMock *mock_service.MockIOrderService)
+		expectedCode        int
+		expectedAPIResponse []dto.APIGetUserOrderResponseEntry
 	}{
 		{
-			name:        "success",
-			epectedCode: http.StatusOK,
+			name: "success",
+			setupMocks: func(orderServiceMock *mock_service.MockIOrderService) {
+				orderServiceMock.EXPECT().
+					GetOrders(gomock.Any()).
+					Return(
+						[]dto.OrderDomain{
+							{
+								Number:     "1111222233334444",
+								Status:     dto.OrderStatusNew,
+								Accrual:    10.5,
+								UploadedAt: time.Date(2024, time.September, 5, 10, 0, 0, 0, time.UTC),
+							},
+						},
+						nil,
+					)
+			},
+			expectedCode: http.StatusOK,
+			expectedAPIResponse: []dto.APIGetUserOrderResponseEntry{
+				{
+					Number:     "1111222233334444",
+					Status:     dto.OrderStatusNew,
+					Accrual:    10.5,
+					UploadedAt: time.Date(2024, time.September, 5, 10, 0, 0, 0, time.UTC),
+				},
+			},
+		},
+		{
+			name: "orders not found",
+			setupMocks: func(orderServiceMock *mock_service.MockIOrderService) {
+				orderServiceMock.EXPECT().
+					GetOrders(gomock.Any()).
+					Return(
+						[]dto.OrderDomain{},
+						nil,
+					)
+			},
+			expectedCode: http.StatusNoContent,
+		},
+		{
+			name: "internal server error",
+			setupMocks: func(orderServiceMock *mock_service.MockIOrderService) {
+				orderServiceMock.EXPECT().
+					GetOrders(gomock.Any()).
+					Return(
+						nil,
+						errors.New("internal server error"),
+					)
+			},
+			expectedCode: http.StatusInternalServerError,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt.setupMocks(orderServiceMock)
+
 			r := httptest.NewRequest(http.MethodGet, "/api/user/orders", nil)
 			w := httptest.NewRecorder()
 
 			apiController.GetUserOrders(w, r)
 
-			assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
+			if w.Result().StatusCode == http.StatusOK {
+				var apiResponse []dto.APIGetUserOrderResponseEntry
+				err := json.Unmarshal(w.Body.Bytes(), &apiResponse)
+				require.NoError(t, err, "unexpected error when parse response")
+
+				assert.Equal(t, tt.expectedAPIResponse, apiResponse)
+			}
 		})
 	}
 }

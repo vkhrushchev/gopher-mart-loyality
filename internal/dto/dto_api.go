@@ -14,6 +14,13 @@ type APILoginUserReqest struct {
 
 type OrderStatus string
 
+const (
+	OrderStatusNew        = "NEW"
+	OrderStatusProcessing = "PROCESSING"
+	OrderStatusInvalid    = "INVALID"
+	OrderStatusProcessed  = "PROCESSED"
+)
+
 type APIGetUserOrderResponseEntry struct {
 	Number     string      `json:"number"`
 	Status     OrderStatus `json:"status"`

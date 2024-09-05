@@ -166,6 +166,32 @@ func (c *APIController) PutUserOrder(w http.ResponseWriter, r *http.Request) {
 func (c *APIController) GetUserOrders(w http.ResponseWriter, r *http.Request) {
 	log.Infow("GetUserOrders handler called.")
 
+	orderDomains, err := c.orderService.GetOrders(r.Context())
+	if err != nil {
+		log.Errorw(
+			"controller_api: unexpected internal server error",
+			"error", err.Error(),
+		)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if orderDomains != nil && len(orderDomains) == 0 {
+		log.Infow("controller_api: no orders found for user")
+
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	apiResponse := make([]dto.APIGetUserOrderResponseEntry, 0, len(orderDomains))
+	for _, orderDomain := range orderDomains {
+		apiResponseEntry := dto.APIGetUserOrderResponseEntry(orderDomain)
+		apiResponse = append(apiResponse, apiResponseEntry)
+	}
+
+	json.NewEncoder(w).Encode(apiResponse)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
 
