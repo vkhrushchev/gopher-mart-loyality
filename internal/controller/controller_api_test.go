@@ -499,22 +499,76 @@ func TestAPIController_GetUserBalanaceWithdrawls(t *testing.T) {
 	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
-		name        string
-		epectedCode int
+		name                string
+		setupMocks          func(withdrawService *mock_service.MockIWithDrawService)
+		expectedAPIResponse []dto.APIGetUserBalanaceWithdrawlsResponseEntry
+		expectedCode        int
 	}{
 		{
-			name:        "success",
-			epectedCode: http.StatusOK,
+			name: "success",
+			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+				withdrawService.EXPECT().
+					GetUserWithdraws(gomock.Any()).
+					Return(
+						[]dto.UserWithdrawDomain{
+							{
+								Order:       "1111222233334444",
+								Sum:         10.5,
+								ProcessedAt: time.Date(2024, time.September, 5, 10, 0, 0, 0, time.UTC),
+							},
+						},
+						nil,
+					)
+			},
+			expectedAPIResponse: []dto.APIGetUserBalanaceWithdrawlsResponseEntry{
+				{
+					Order:       "1111222233334444",
+					Sum:         10.5,
+					ProcessedAt: time.Date(2024, time.September, 5, 10, 0, 0, 0, time.UTC),
+				},
+			},
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "withdraws not found",
+			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+				withdrawService.EXPECT().
+					GetUserWithdraws(gomock.Any()).
+					Return(
+						[]dto.UserWithdrawDomain{},
+						nil,
+					)
+			},
+			expectedCode: http.StatusNoContent,
+		},
+		{
+			name: "internal server error",
+			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+				withdrawService.EXPECT().
+					GetUserWithdraws(gomock.Any()).
+					Return(
+						nil,
+						errors.New("internal server error"),
+					)
+			},
+			expectedCode: http.StatusInternalServerError,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt.setupMocks(withdrawServiceMock)
+
 			r := httptest.NewRequest(http.MethodGet, "/api/user/withdrawals", nil)
 			w := httptest.NewRecorder()
 
 			apiController.GetUserBalanaceWithdrawls(w, r)
 
-			assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
+			if w.Result().StatusCode == http.StatusOK {
+				var apiResponse []dto.APIGetUserBalanaceWithdrawlsResponseEntry
+				err := json.Unmarshal(w.Body.Bytes(), &apiResponse)
+				require.NoError(t, err, "unexpected error when parse response")
+			}
 		})
 	}
 }

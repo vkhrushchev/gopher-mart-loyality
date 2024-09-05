@@ -218,6 +218,7 @@ func (c *APIController) GetUserBalance(w http.ResponseWriter, r *http.Request) {
 		Current:   userBalanceDomain.Current,
 		Withdrawn: userBalanceDomain.Withdraw,
 	}
+
 	json.NewEncoder(w).Encode(apiResponse)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -264,6 +265,32 @@ func (c *APIController) WithdrawUserBalance(w http.ResponseWriter, r *http.Reque
 func (c *APIController) GetUserBalanaceWithdrawls(w http.ResponseWriter, r *http.Request) {
 	log.Infow("GetUserBalanaceWithdrawls handler called.")
 
+	userWithdrawDomains, err := c.withdrawService.GetUserWithdraws(r.Context())
+	if err != nil {
+		log.Infow(
+			"controller_api: internal server error",
+			"error", err.Error(),
+		)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if len(userWithdrawDomains) == 0 {
+		log.Infow("controller_api: no withdraws found")
+
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	apiResponse := make([]dto.APIGetUserBalanaceWithdrawlsResponseEntry, 0, len(userWithdrawDomains))
+	for _, userWithdraw := range userWithdrawDomains {
+		apiResponseEntry := dto.APIGetUserBalanaceWithdrawlsResponseEntry(userWithdraw)
+		apiResponse = append(apiResponse, apiResponseEntry)
+	}
+
+	json.NewEncoder(w).Encode(apiResponse)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
 

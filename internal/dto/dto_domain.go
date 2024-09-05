@@ -15,6 +15,9 @@ type UserBalanceDomain struct {
 }
 
 type UserWithdrawDomain struct {
+	Order       string
+	Sum         float64
+	ProcessedAt time.Time
 }
 
 type AccuralInfoDomain struct {
