@@ -14,14 +14,19 @@ import (
 var orderNumberRegexp = regexp.MustCompile(`\d{16}`)
 
 type APIController struct {
-	userService  service.IUserService
-	orderService service.IOrderService
+	userService     service.IUserService
+	orderService    service.IOrderService
+	withdrawService service.IWithDrawService
 }
 
-func NewAPIController(userService service.IUserService, orderService service.IOrderService) *APIController {
+func NewAPIController(
+	userService service.IUserService,
+	orderService service.IOrderService,
+	withdrawService service.IWithDrawService) *APIController {
 	return &APIController{
-		userService:  userService,
-		orderService: orderService,
+		userService:     userService,
+		orderService:    orderService,
+		withdrawService: withdrawService,
 	}
 }
 
@@ -220,6 +225,38 @@ func (c *APIController) GetUserBalance(w http.ResponseWriter, r *http.Request) {
 
 func (c *APIController) WithdrawUserBalance(w http.ResponseWriter, r *http.Request) {
 	log.Infow("WithdrawUserBalance handler called.")
+
+	if ok := checkContentType(r, w); !ok {
+		return
+	}
+
+	var apiRequest dto.APIWithdrawUserBalanceRequest
+	if ok := parseRequest(r, w, &apiRequest); !ok {
+		return
+	}
+
+	err := c.withdrawService.MakeWithdraw(r.Context(), apiRequest.Order, apiRequest.Sum)
+	if err != nil && errors.Is(err, service.ErrWithdrawNoFundsOnBalance) {
+		log.Infow("controller_api: no funds on balance")
+
+		w.WriteHeader(http.StatusPaymentRequired)
+		return
+	} else if err != nil && errors.Is(err, service.ErrOrderWrongNumber) {
+		log.Infow(
+			"controller_api: wrong order number",
+			"order_number", apiRequest.Order,
+		)
+
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		return
+	} else if err != nil {
+		log.Errorw(
+			"controller_api: internal server error",
+		)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 }

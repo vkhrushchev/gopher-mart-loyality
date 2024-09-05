@@ -23,7 +23,8 @@ func TestAPIController_RegisterUser(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock)
+	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
 		name         string
@@ -118,7 +119,8 @@ func TestAPIController_LoginUser(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock)
+	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
 		name         string
@@ -192,7 +194,8 @@ func TestAPIController_PutUserOrders(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock)
+	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
 		name         string
@@ -261,7 +264,8 @@ func TestAPIController_GetUserOrders(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock)
+	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
 		name                string
@@ -348,7 +352,8 @@ func TestAPIController_GetUserBalance(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock)
+	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
 		name             string
@@ -401,26 +406,85 @@ func TestAPIController_WithdrawUserBalance(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock)
+	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
-		name        string
-		c           *APIController
-		epectedCode int
+		name         string
+		apiRequest   dto.APIWithdrawUserBalanceRequest
+		setupMocks   func(withdrawService *mock_service.MockIWithDrawService)
+		expectedCode int
 	}{
 		{
-			name:        "success",
-			epectedCode: http.StatusOK,
+			name: "success",
+			apiRequest: dto.APIWithdrawUserBalanceRequest{
+				Order: "1111222233334444",
+				Sum:   10.5,
+			},
+			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+				withdrawService.EXPECT().
+					MakeWithdraw(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(nil)
+			},
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "no funds on balance",
+			apiRequest: dto.APIWithdrawUserBalanceRequest{
+				Order: "1111222233334444",
+				Sum:   10.5,
+			},
+			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+				withdrawService.EXPECT().
+					MakeWithdraw(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(service.ErrWithdrawNoFundsOnBalance)
+			},
+			expectedCode: http.StatusPaymentRequired,
+		},
+		{
+			name: "wrong order number",
+			apiRequest: dto.APIWithdrawUserBalanceRequest{
+				Order: "1111222233334444",
+				Sum:   10.5,
+			},
+			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+				withdrawService.EXPECT().
+					MakeWithdraw(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(service.ErrOrderWrongNumber)
+			},
+			expectedCode: http.StatusUnprocessableEntity,
+		},
+		{
+			name: "internal server error",
+			apiRequest: dto.APIWithdrawUserBalanceRequest{
+				Order: "1111222233334444",
+				Sum:   10.5,
+			},
+			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+				withdrawService.EXPECT().
+					MakeWithdraw(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(errors.New("internal server error"))
+			},
+			expectedCode: http.StatusInternalServerError,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := httptest.NewRequest(http.MethodPost, "/api/user/balance/withdraw", nil)
+			tt.setupMocks(withdrawServiceMock)
+
+			requestBytes, err := json.Marshal(tt.apiRequest)
+			require.NoError(t, err, "error when marshal request")
+			r := httptest.NewRequest(
+				http.MethodPost,
+				"/api/user/balance/withdraw",
+				strings.NewReader(string(requestBytes)),
+			)
+			r.Header.Set("Content-Type", "application/json")
 			w := httptest.NewRecorder()
 
 			apiController.WithdrawUserBalance(w, r)
 
-			assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
 		})
 	}
 }
@@ -431,7 +495,8 @@ func TestAPIController_GetUserBalanaceWithdrawls(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock)
+	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
 		name        string

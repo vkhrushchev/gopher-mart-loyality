@@ -131,3 +131,55 @@ func (mr *MockIOrderServiceMockRecorder) PutOrder(ctx, orderNumber interface{}) 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutOrder", reflect.TypeOf((*MockIOrderService)(nil).PutOrder), ctx, orderNumber)
 }
+
+// MockIWithDrawService is a mock of IWithDrawService interface.
+type MockIWithDrawService struct {
+	ctrl     *gomock.Controller
+	recorder *MockIWithDrawServiceMockRecorder
+}
+
+// MockIWithDrawServiceMockRecorder is the mock recorder for MockIWithDrawService.
+type MockIWithDrawServiceMockRecorder struct {
+	mock *MockIWithDrawService
+}
+
+// NewMockIWithDrawService creates a new mock instance.
+func NewMockIWithDrawService(ctrl *gomock.Controller) *MockIWithDrawService {
+	mock := &MockIWithDrawService{ctrl: ctrl}
+	mock.recorder = &MockIWithDrawServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockIWithDrawService) EXPECT() *MockIWithDrawServiceMockRecorder {
+	return m.recorder
+}
+
+// GetUserWithdraws mocks base method.
+func (m *MockIWithDrawService) GetUserWithdraws(ctx context.Context) ([]dto.UserWithdrawDomain, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserWithdraws", ctx)
+	ret0, _ := ret[0].([]dto.UserWithdrawDomain)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserWithdraws indicates an expected call of GetUserWithdraws.
+func (mr *MockIWithDrawServiceMockRecorder) GetUserWithdraws(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserWithdraws", reflect.TypeOf((*MockIWithDrawService)(nil).GetUserWithdraws), ctx)
+}
+
+// MakeWithdraw mocks base method.
+func (m *MockIWithDrawService) MakeWithdraw(ctx context.Context, orderNumber string, sum float64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MakeWithdraw", ctx, orderNumber, sum)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MakeWithdraw indicates an expected call of MakeWithdraw.
+func (mr *MockIWithDrawServiceMockRecorder) MakeWithdraw(ctx, orderNumber, sum interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MakeWithdraw", reflect.TypeOf((*MockIWithDrawService)(nil).MakeWithdraw), ctx, orderNumber, sum)
+}
