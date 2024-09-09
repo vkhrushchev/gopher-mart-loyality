@@ -28,7 +28,7 @@ func TestAPIController_RegisterUser(t *testing.T) {
 
 	tests := []struct {
 		name         string
-		request      *dto.APIRegisterUserRequest
+		request      dto.APIRegisterUserRequest
 		contentType  string
 		setupMocks   func(userServiceMock *mock_service.MockIUserService)
 		expectedCode int
@@ -43,7 +43,7 @@ func TestAPIController_RegisterUser(t *testing.T) {
 					LoginUser(gomock.Any(), gomock.Any(), gomock.Any()).
 					Return("test_auth_token", nil)
 			},
-			request: &dto.APIRegisterUserRequest{
+			request: dto.APIRegisterUserRequest{
 				Login:    "test_loging",
 				Password: "test_password",
 			},
@@ -57,7 +57,7 @@ func TestAPIController_RegisterUser(t *testing.T) {
 					RegisterUser(gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(service.ErrUserExists)
 			},
-			request: &dto.APIRegisterUserRequest{
+			request: dto.APIRegisterUserRequest{
 				Login:    "test_loging",
 				Password: "test_password",
 			},
@@ -71,7 +71,7 @@ func TestAPIController_RegisterUser(t *testing.T) {
 					RegisterUser(gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(errors.New("internal server error"))
 			},
-			request: &dto.APIRegisterUserRequest{
+			request: dto.APIRegisterUserRequest{
 				Login:    "test_loging",
 				Password: "test_password",
 			},
@@ -124,14 +124,14 @@ func TestAPIController_LoginUser(t *testing.T) {
 
 	tests := []struct {
 		name         string
-		request      *dto.APILoginUserReqest
+		request      dto.APILoginUserReqest
 		contentType  string
 		setupMocks   func(userServiceMock *mock_service.MockIUserService)
 		expectedCode int
 	}{
 		{
 			name: "success",
-			request: &dto.APILoginUserReqest{
+			request: dto.APILoginUserReqest{
 				Login:    "test_login",
 				Password: "test_password",
 			},
@@ -143,7 +143,7 @@ func TestAPIController_LoginUser(t *testing.T) {
 		},
 		{
 			name: "unknown user and password",
-			request: &dto.APILoginUserReqest{
+			request: dto.APILoginUserReqest{
 				Login:    "test_login",
 				Password: "test_password",
 			},

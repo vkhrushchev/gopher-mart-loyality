@@ -8,6 +8,7 @@ import (
 	"regexp"
 
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/dto"
+	"github.com/vkhrushchev/gopher-mart-loyality/internal/middleware"
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/service"
 )
 
@@ -325,7 +326,7 @@ func parseRequest(r *http.Request, w http.ResponseWriter, apiRequest any) bool {
 
 func setAuthTokenCookie(w http.ResponseWriter, authToken string) {
 	authCookie := http.Cookie{
-		Name:   "AuthToken",
+		Name:   middleware.AuthTokenCoockieName,
 		Value:  authToken,
 		Path:   "/",
 		MaxAge: 3600,

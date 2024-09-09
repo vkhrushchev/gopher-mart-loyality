@@ -17,15 +17,18 @@ type GopherMartLoylityApp struct {
 	apiController *controller.APIController
 	router        chi.Router
 	runAddr       string
+	jwtSecretKey  string
 }
 
 func NewGopherMartLoylityApp(
 	runAddr string,
+	jwtSecretKey string,
 	apiController *controller.APIController) *GopherMartLoylityApp {
 	return &GopherMartLoylityApp{
 		apiController: apiController,
 		router:        chi.NewRouter(),
 		runAddr:       runAddr,
+		jwtSecretKey:  jwtSecretKey,
 	}
 }
 
@@ -35,7 +38,7 @@ func (a *GopherMartLoylityApp) RegisterHandlers() {
 		r.Post("/login", a.apiController.LoginUser)
 
 		r.Group(func(r chi.Router) {
-			r.Use(middleware.JWTAuth)
+			r.Use(middleware.NewJWTAuthMiddleware(a.jwtSecretKey))
 
 			r.Post("/orders", a.apiController.PutUserOrder)
 			r.Get("/orders", a.apiController.GetUserOrders)
