@@ -5,7 +5,7 @@ import "time"
 type OrderDomain struct {
 	Number     string
 	Status     OrderStatus
-	Accrual    float64
+	Accrual    *float64
 	UploadedAt time.Time
 }
 

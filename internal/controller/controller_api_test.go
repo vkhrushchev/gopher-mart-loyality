@@ -17,6 +17,10 @@ import (
 	mock_service "github.com/vkhrushchev/gopher-mart-loyality/internal/service/mock"
 )
 
+var (
+	testAccural float64 = 10.5
+)
+
 func TestAPIController_RegisterUser(t *testing.T) {
 	mockController := gomock.NewController(t)
 	defer mockController.Finish()
@@ -283,7 +287,7 @@ func TestAPIController_GetUserOrders(t *testing.T) {
 							{
 								Number:     "1111222233334444",
 								Status:     dto.OrderStatusNew,
-								Accrual:    10.5,
+								Accrual:    &testAccural,
 								UploadedAt: time.Date(2024, time.September, 5, 10, 0, 0, 0, time.UTC),
 							},
 						},
@@ -295,7 +299,7 @@ func TestAPIController_GetUserOrders(t *testing.T) {
 				{
 					Number:     "1111222233334444",
 					Status:     dto.OrderStatusNew,
-					Accrual:    10.5,
+					Accrual:    &testAccural,
 					UploadedAt: time.Date(2024, time.September, 5, 10, 0, 0, 0, time.UTC),
 				},
 			},

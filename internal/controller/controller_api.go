@@ -196,9 +196,9 @@ func (c *APIController) GetUserOrders(w http.ResponseWriter, r *http.Request) {
 		apiResponse = append(apiResponse, apiResponseEntry)
 	}
 
-	json.NewEncoder(w).Encode(apiResponse)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(apiResponse)
 }
 
 func (c *APIController) GetUserBalance(w http.ResponseWriter, r *http.Request) {
@@ -220,9 +220,9 @@ func (c *APIController) GetUserBalance(w http.ResponseWriter, r *http.Request) {
 		Withdrawn: userBalanceDomain.Withdraw,
 	}
 
-	json.NewEncoder(w).Encode(apiResponse)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(apiResponse)
 }
 
 func (c *APIController) WithdrawUserBalance(w http.ResponseWriter, r *http.Request) {
@@ -290,9 +290,9 @@ func (c *APIController) GetUserBalanaceWithdrawls(w http.ResponseWriter, r *http
 		apiResponse = append(apiResponse, apiResponseEntry)
 	}
 
-	json.NewEncoder(w).Encode(apiResponse)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(apiResponse)
 }
 
 func checkContentType(r *http.Request, w http.ResponseWriter) bool {

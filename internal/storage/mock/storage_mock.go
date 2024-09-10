@@ -64,3 +64,71 @@ func (mr *MockIUserStorageMockRecorder) SaveUser(ctx, user interface{}) *gomock.
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveUser", reflect.TypeOf((*MockIUserStorage)(nil).SaveUser), ctx, user)
 }
+
+// MockIOrderStorage is a mock of IOrderStorage interface.
+type MockIOrderStorage struct {
+	ctrl     *gomock.Controller
+	recorder *MockIOrderStorageMockRecorder
+}
+
+// MockIOrderStorageMockRecorder is the mock recorder for MockIOrderStorage.
+type MockIOrderStorageMockRecorder struct {
+	mock *MockIOrderStorage
+}
+
+// NewMockIOrderStorage creates a new mock instance.
+func NewMockIOrderStorage(ctrl *gomock.Controller) *MockIOrderStorage {
+	mock := &MockIOrderStorage{ctrl: ctrl}
+	mock.recorder = &MockIOrderStorageMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockIOrderStorage) EXPECT() *MockIOrderStorageMockRecorder {
+	return m.recorder
+}
+
+// GetOrderByOrderNumber mocks base method.
+func (m *MockIOrderStorage) GetOrderByOrderNumber(ctx context.Context, orderNumber string) (*dto.OrderEntity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrderByOrderNumber", ctx, orderNumber)
+	ret0, _ := ret[0].(*dto.OrderEntity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrderByOrderNumber indicates an expected call of GetOrderByOrderNumber.
+func (mr *MockIOrderStorageMockRecorder) GetOrderByOrderNumber(ctx, orderNumber interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrderByOrderNumber", reflect.TypeOf((*MockIOrderStorage)(nil).GetOrderByOrderNumber), ctx, orderNumber)
+}
+
+// GetOrdersByUserLogin mocks base method.
+func (m *MockIOrderStorage) GetOrdersByUserLogin(ctx context.Context, userLogin string) ([]dto.OrderEntity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrdersByUserLogin", ctx, userLogin)
+	ret0, _ := ret[0].([]dto.OrderEntity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrdersByUserLogin indicates an expected call of GetOrdersByUserLogin.
+func (mr *MockIOrderStorageMockRecorder) GetOrdersByUserLogin(ctx, userLogin interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrdersByUserLogin", reflect.TypeOf((*MockIOrderStorage)(nil).GetOrdersByUserLogin), ctx, userLogin)
+}
+
+// SaveOrder mocks base method.
+func (m *MockIOrderStorage) SaveOrder(ctx context.Context, order *dto.OrderEntity) (*dto.OrderEntity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveOrder", ctx, order)
+	ret0, _ := ret[0].(*dto.OrderEntity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SaveOrder indicates an expected call of SaveOrder.
+func (mr *MockIOrderStorageMockRecorder) SaveOrder(ctx, order interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveOrder", reflect.TypeOf((*MockIOrderStorage)(nil).SaveOrder), ctx, order)
+}

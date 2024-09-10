@@ -28,9 +28,10 @@ func main() {
 	}
 
 	userStorage := storage.NewUserStorage(sqlxdb)
+	orderStorage := storage.NewOrderStorage(sqlxdb)
 
 	userService := service.NewUserService(userStorage, "salt", "jwtSecretKey")
-	orderService := service.NewOrderService()
+	orderService := service.NewOrderService(orderStorage)
 	withdrawService := service.NewWithdrawService()
 
 	apiController := controller.NewAPIController(userService, orderService, withdrawService)

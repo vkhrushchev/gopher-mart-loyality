@@ -20,3 +20,9 @@ type IUserStorage interface {
 	SaveUser(ctx context.Context, user *dto.UserEntity) (*dto.UserEntity, error)
 	GetUserByLoginAndPasswordHash(ctx context.Context, login string, passwordHash string) (*dto.UserEntity, error)
 }
+
+type IOrderStorage interface {
+	SaveOrder(ctx context.Context, order *dto.OrderEntity) (*dto.OrderEntity, error)
+	GetOrderByOrderNumber(ctx context.Context, orderNumber string) (*dto.OrderEntity, error)
+	GetOrdersByUserLogin(ctx context.Context, userLogin string) ([]dto.OrderEntity, error)
+}

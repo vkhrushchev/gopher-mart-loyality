@@ -24,7 +24,7 @@ const (
 type APIGetUserOrderResponseEntry struct {
 	Number     string      `json:"number"`
 	Status     OrderStatus `json:"status"`
-	Accrual    float64     `json:"accrual"`
+	Accrual    *float64    `json:"accrual,omitempty"`
 	UploadedAt time.Time   `json:"uploaded_at"`
 }
 
