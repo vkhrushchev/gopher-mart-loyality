@@ -54,6 +54,11 @@ func TestGopherMartLoylityApp_registerUser(t *testing.T) {
 			request.Header.Add("Content-Type", "application/json")
 
 			response, err := ts.Client().Do(request)
+			defer func() {
+				if err := response.Body.Close(); err != nil {
+					require.NoError(t, err)
+				}
+			}()
 			require.NoError(t, err)
 
 			assert.Equal(t, tt.status, response.StatusCode)
@@ -98,6 +103,11 @@ func TestGopherMartLoylityApp_loginUser(t *testing.T) {
 			request.Header.Add("Content-Type", "application/json")
 
 			response, err := ts.Client().Do(request)
+			defer func() {
+				if err := response.Body.Close(); err != nil {
+					require.NoError(t, err)
+				}
+			}()
 			require.NoError(t, err)
 
 			assert.Equal(t, tt.status, response.StatusCode)
@@ -145,6 +155,11 @@ func TestGopherMartLoylityApp_putUserOrders(t *testing.T) {
 			request.Header.Add("Authorization", tt.authHeader)
 
 			response, err := ts.Client().Do(request)
+			defer func() {
+				if err := response.Body.Close(); err != nil {
+					require.NoError(t, err)
+				}
+			}()
 			require.NoError(t, err)
 
 			assert.Equal(t, tt.status, response.StatusCode)
@@ -192,6 +207,11 @@ func TestGopherMartLoylityApp_getUserOrders(t *testing.T) {
 			request.Header.Add("Authorization", tt.authHeader)
 
 			response, err := ts.Client().Do(request)
+			defer func() {
+				if err := response.Body.Close(); err != nil {
+					require.NoError(t, err)
+				}
+			}()
 			require.NoError(t, err)
 
 			assert.Equal(t, tt.status, response.StatusCode)
@@ -239,6 +259,11 @@ func TestGopherMartLoylityApp_getUserBalance(t *testing.T) {
 			request.Header.Add("Authorization", tt.authHeader)
 
 			response, err := ts.Client().Do(request)
+			defer func() {
+				if err := response.Body.Close(); err != nil {
+					require.NoError(t, err)
+				}
+			}()
 			require.NoError(t, err)
 
 			assert.Equal(t, tt.status, response.StatusCode)
@@ -286,6 +311,11 @@ func TestGopherMartLoylityApp_withdrawUserBalance(t *testing.T) {
 			request.Header.Add("Authorization", tt.authHeader)
 
 			response, err := ts.Client().Do(request)
+			defer func() {
+				if err := response.Body.Close(); err != nil {
+					require.NoError(t, err)
+				}
+			}()
 			require.NoError(t, err)
 
 			assert.Equal(t, tt.status, response.StatusCode)
@@ -333,6 +363,11 @@ func TestGopherMartLoylityApp_getUserBalanaceWithdrawls(t *testing.T) {
 			request.Header.Add("Authorization", tt.authHeader)
 
 			response, err := ts.Client().Do(request)
+			defer func() {
+				if err := response.Body.Close(); err != nil {
+					require.NoError(t, err)
+				}
+			}()
 			require.NoError(t, err)
 
 			assert.Equal(t, tt.status, response.StatusCode)

@@ -53,7 +53,7 @@ func (s *UserService) RegisterUser(ctx context.Context, username string, passwor
 
 	log.Debugw(
 		"service_user: user saved",
-		"id", userEntity.Id,
+		"id", userEntity.ID,
 		"username", userEntity.Login,
 		"password_hash", userEntity.PasswordHash,
 	)

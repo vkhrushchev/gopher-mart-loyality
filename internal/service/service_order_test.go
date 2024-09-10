@@ -164,7 +164,7 @@ func TestOrderService_GetOrders(t *testing.T) {
 					Return(
 						[]dto.OrderEntity{
 							{
-								Id:        1,
+								ID:        1,
 								UserLogin: "test_user",
 								Number:    "0000111122223333",
 								Status:    dto.OrderStatusNew,
@@ -174,7 +174,7 @@ func TestOrderService_GetOrders(t *testing.T) {
 								UploadedAt: time.Date(2024, time.September, 10, 15, 0, 0, 0, time.UTC),
 							},
 							{
-								Id:        2,
+								ID:        2,
 								UserLogin: "test_user",
 								Number:    "0000111122223333",
 								Status:    dto.OrderStatusProcessed,

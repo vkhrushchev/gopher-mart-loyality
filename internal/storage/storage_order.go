@@ -92,6 +92,11 @@ func (s *OrderStorage) GetOrdersByUserLogin(ctx context.Context, userLogin strin
 		return nil, err
 	}
 
+	if rows.Err() != nil {
+		log.Errorw("storage_order: unexpected DB error", "error", rows.Err().Error())
+		return nil, ErrUnexpextedDBError
+	}
+
 	var orders = make([]dto.OrderEntity, 0)
 	for rows.Next() {
 		var order dto.OrderEntity
