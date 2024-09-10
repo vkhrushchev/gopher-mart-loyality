@@ -49,7 +49,7 @@ func main() {
 
 	apiController := controller.NewAPIController(userService, orderService, withdrawService)
 
-	app := app.NewGopherMartLoylityApp("localhost:8080", "jwtSecretKey", apiController)
+	app := app.NewGopherMartLoylityApp(config.runAddr, "jwtSecretKey", apiController)
 	app.RegisterHandlers()
 
 	if err := app.Run(); err != nil {
