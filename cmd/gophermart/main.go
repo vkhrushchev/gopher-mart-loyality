@@ -1,6 +1,9 @@
 package main
 
 import (
+	"flag"
+	"os"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/app"
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/controller"
@@ -12,8 +15,18 @@ import (
 
 var log = zap.Must(zap.NewDevelopment()).Sugar()
 
+type Config struct {
+	runAddr              string
+	databaseURI          string
+	accrualSystemAddress string
+}
+
+var config Config
+
 func main() {
-	if err := db.ExecuteMigrations("postgres://gophermart:gophermart@localhost:5432/gophermart?sslmode=disable"); err != nil {
+	parseConfig()
+
+	if err := db.ExecuteMigrations(config.databaseURI); err != nil {
 		log.Fatalw(
 			"main: error when run DB migrations",
 			"error", err.Error())
@@ -21,7 +34,7 @@ func main() {
 
 	var sqlxdb *sqlx.DB
 	var err error
-	if sqlxdb, err = db.NewSqlxDB("postgres://gophermart:gophermart@localhost:5432/gophermart?sslmode=disable"); err != nil {
+	if sqlxdb, err = db.NewSqlxDB(config.databaseURI); err != nil {
 		log.Fatalw(
 			"main: error when connecto to DB",
 			"error", err.Error())
@@ -44,4 +57,31 @@ func main() {
 			"main: error when run GopherMartLoylityApp",
 			"error", err.Error())
 	}
+}
+
+func parseConfig() {
+	flag.StringVar(&config.runAddr, "a", "localhost:8080", "Run address")
+	flag.StringVar(&config.databaseURI, "d", "", "Database URI")
+	flag.StringVar(&config.accrualSystemAddress, "r", "", "Accural address")
+
+	flag.Parse()
+
+	if runAddress := os.Getenv("RUN_ADDRESS"); runAddress != "" {
+		config.runAddr = runAddress
+	}
+
+	if databaseURIEnv := os.Getenv("DATABASE_URI"); databaseURIEnv != "" {
+		config.databaseURI = databaseURIEnv
+	}
+
+	if accruaSystemAddressEnv := os.Getenv("ACCRUAL_SYSTEM_ADDRESS"); accruaSystemAddressEnv != "" {
+		config.accrualSystemAddress = accruaSystemAddressEnv
+	}
+
+	log.Infow(
+		"main: config parsed",
+		"runAddr", config.runAddr,
+		"databaseURI", config.databaseURI,
+		"accrualSystemAddress", config.accrualSystemAddress,
+	)
 }
