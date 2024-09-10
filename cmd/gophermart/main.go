@@ -25,7 +25,7 @@ type Config struct {
 var config Config
 
 func main() {
-	fmt.Println("Enter to the main")
+	fmt.Println("Enter to the main...")
 
 	parseConfig()
 
