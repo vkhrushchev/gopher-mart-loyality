@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 
 	"github.com/jmoiron/sqlx"
@@ -25,8 +24,6 @@ type Config struct {
 var config Config
 
 func main() {
-	fmt.Println("Enter to the main")
-
 	parseConfig()
 
 	if err := db.ExecuteMigrations(config.databaseURI); err != nil {
