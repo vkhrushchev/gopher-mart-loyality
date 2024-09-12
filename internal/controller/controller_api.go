@@ -12,7 +12,7 @@ import (
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/service"
 )
 
-var orderNumberRegexp = regexp.MustCompile(`\d{16}`)
+var orderNumberRegexp = regexp.MustCompile(`\d+`)
 
 type APIController struct {
 	userService     service.IUserService
@@ -112,17 +112,22 @@ func (c *APIController) LoginUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *APIController) PutUserOrder(w http.ResponseWriter, r *http.Request) {
-	log.Infow("PutUserOrders handler called.")
+	log.Infow("controller_api: PutUserOrders handler called")
 	requestBodyBytes, err := io.ReadAll(r.Body)
 	if err != nil && !errors.Is(err, io.EOF) {
 		log.Errorw("controller_api: error when read request body")
 	}
 
 	orderNumber := string(requestBodyBytes)
+	log.Infow(
+		"controller_api: start processing order",
+		"order_number", orderNumber,
+	)
 	matched := orderNumberRegexp.Match([]byte(orderNumber))
 	if !matched {
-		log.Errorw(
+		log.Infow(
 			"controller_api: order number not matched by regexp",
+			"order_number", orderNumber,
 		)
 
 		w.WriteHeader(http.StatusBadRequest)

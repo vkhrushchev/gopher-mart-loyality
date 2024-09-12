@@ -29,15 +29,17 @@ func NewOrderService(orderStorage storage.IOrderStorage) *OrderService {
 }
 
 func (s *OrderService) PutOrder(ctx context.Context, orderNumber string) (bool, error) {
+	userLogin := ctx.Value(middleware.UserLoginContextKey).(string)
 	log.Infow(
 		"service_order: put order",
-		"number", orderNumber)
+		"order_number", orderNumber,
+		"user_login", userLogin,
+	)
 
 	if err := goluhn.Validate(orderNumber); err != nil {
 		return false, ErrOrderWrongNumber
 	}
 
-	userLogin := ctx.Value(middleware.UserLoginContextKey).(string)
 	orderEntity := &dto.OrderEntity{
 		UserLogin:  userLogin,
 		Number:     orderNumber,

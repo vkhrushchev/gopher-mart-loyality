@@ -24,7 +24,7 @@ func NewJWTAuthMiddleware(jwtSecretKey string) func(handler http.Handler) http.H
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			log.Infow("JWTAuth middleware called.", "path", r.URL.Path)
 			authTokenCookie, err := r.Cookie(AuthTokenCoockieName)
-			if err != nil && !errors.Is(err, http.ErrNoCookie) {
+			if err != nil && errors.Is(err, http.ErrNoCookie) {
 				log.Infow("middleware: no auth token cookie found")
 
 				w.WriteHeader(http.StatusUnauthorized)
