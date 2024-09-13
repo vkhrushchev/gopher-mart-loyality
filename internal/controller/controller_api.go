@@ -268,8 +268,8 @@ func (c *APIController) WithdrawUserBalance(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusOK)
 }
 
-func (c *APIController) GetUserBalanaceWithdrawls(w http.ResponseWriter, r *http.Request) {
-	log.Infow("GetUserBalanaceWithdrawls handler called.")
+func (c *APIController) GetUserBalanaceWithdrawals(w http.ResponseWriter, r *http.Request) {
+	log.Infow("GetUserBalanaceWithdrawals handler called.")
 
 	userWithdrawDomains, err := c.withdrawService.GetUserWithdrawals(r.Context())
 	if err != nil {

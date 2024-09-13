@@ -565,7 +565,7 @@ func TestAPIController_GetUserBalanaceWithdrawls(t *testing.T) {
 			r := httptest.NewRequest(http.MethodGet, "/api/user/withdrawals", nil)
 			w := httptest.NewRecorder()
 
-			apiController.GetUserBalanaceWithdrawls(w, r)
+			apiController.GetUserBalanaceWithdrawals(w, r)
 
 			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
 			if w.Result().StatusCode == http.StatusOK {

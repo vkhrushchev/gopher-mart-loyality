@@ -44,7 +44,7 @@ func (a *GopherMartLoylityApp) RegisterHandlers() {
 			r.Get("/orders", a.apiController.GetUserOrders)
 			r.Get("/balance", a.apiController.GetUserBalance)
 			r.Post("/balance/withdraw", a.apiController.WithdrawUserBalance)
-			r.Get("/withdrawals", a.apiController.GetUserBalanaceWithdrawls)
+			r.Get("/withdrawals", a.apiController.GetUserBalanaceWithdrawals)
 		})
 	})
 }
