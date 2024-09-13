@@ -17,13 +17,13 @@ var orderNumberRegexp = regexp.MustCompile(`\d+`)
 type APIController struct {
 	userService     service.IUserService
 	orderService    service.IOrderService
-	withdrawService service.IWithDrawService
+	withdrawService service.IWithdrawalService
 }
 
 func NewAPIController(
 	userService service.IUserService,
 	orderService service.IOrderService,
-	withdrawService service.IWithDrawService) *APIController {
+	withdrawService service.IWithdrawalService) *APIController {
 	return &APIController{
 		userService:     userService,
 		orderService:    orderService,
@@ -86,7 +86,7 @@ func (c *APIController) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var apiRequest dto.APILoginUserReqest
+	var apiRequest dto.APILoginUserRequest
 	if ok := parseRequest(r, w, &apiRequest); !ok {
 		return
 	}
@@ -195,9 +195,9 @@ func (c *APIController) GetUserOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	apiResponse := make([]dto.APIGetUserOrderResponseEntry, 0, len(orderDomains))
+	apiResponse := make([]dto.APIOrderResponse, 0, len(orderDomains))
 	for _, orderDomain := range orderDomains {
-		apiResponseEntry := dto.APIGetUserOrderResponseEntry(orderDomain)
+		apiResponseEntry := dto.APIOrderResponse(orderDomain)
 		apiResponse = append(apiResponse, apiResponseEntry)
 	}
 
@@ -220,9 +220,9 @@ func (c *APIController) GetUserBalance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	apiResponse := dto.APIGetUserBalanceResponse{
+	apiResponse := dto.APIUserBalance{
 		Current:   userBalanceDomain.Current,
-		Withdrawn: userBalanceDomain.Withdraw,
+		Withdrawn: userBalanceDomain.Withdrawal,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -237,13 +237,13 @@ func (c *APIController) WithdrawUserBalance(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	var apiRequest dto.APIWithdrawUserBalanceRequest
+	var apiRequest dto.APIPutOrderWithdrawnRequest
 	if ok := parseRequest(r, w, &apiRequest); !ok {
 		return
 	}
 
-	err := c.withdrawService.MakeWithdraw(r.Context(), apiRequest.Order, apiRequest.Sum)
-	if err != nil && errors.Is(err, service.ErrWithdrawNoFundsOnBalance) {
+	err := c.withdrawService.DoWithdrawal(r.Context(), apiRequest.Order, apiRequest.Sum)
+	if err != nil && errors.Is(err, service.ErrNoFundsOnBalance) {
 		log.Infow("controller_api: no funds on balance")
 
 		w.WriteHeader(http.StatusPaymentRequired)
@@ -271,7 +271,7 @@ func (c *APIController) WithdrawUserBalance(w http.ResponseWriter, r *http.Reque
 func (c *APIController) GetUserBalanaceWithdrawls(w http.ResponseWriter, r *http.Request) {
 	log.Infow("GetUserBalanaceWithdrawls handler called.")
 
-	userWithdrawDomains, err := c.withdrawService.GetUserWithdraws(r.Context())
+	userWithdrawDomains, err := c.withdrawService.GetUserWithdrawals(r.Context())
 	if err != nil {
 		log.Infow(
 			"controller_api: internal server error",
@@ -289,9 +289,9 @@ func (c *APIController) GetUserBalanaceWithdrawls(w http.ResponseWriter, r *http
 		return
 	}
 
-	apiResponse := make([]dto.APIGetUserBalanaceWithdrawlsResponseEntry, 0, len(userWithdrawDomains))
+	apiResponse := make([]dto.APIOrderWithdrawn, 0, len(userWithdrawDomains))
 	for _, userWithdraw := range userWithdrawDomains {
-		apiResponseEntry := dto.APIGetUserBalanaceWithdrawlsResponseEntry(userWithdraw)
+		apiResponseEntry := dto.APIOrderWithdrawn(userWithdraw)
 		apiResponse = append(apiResponse, apiResponseEntry)
 	}
 

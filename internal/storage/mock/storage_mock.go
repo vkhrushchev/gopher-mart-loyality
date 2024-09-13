@@ -35,6 +35,21 @@ func (m *MockIUserStorage) EXPECT() *MockIUserStorageMockRecorder {
 	return m.recorder
 }
 
+// GetUserBalanceByLogin mocks base method.
+func (m *MockIUserStorage) GetUserBalanceByLogin(ctx context.Context, login string) (*dto.UserBalanceEntity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserBalanceByLogin", ctx, login)
+	ret0, _ := ret[0].(*dto.UserBalanceEntity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserBalanceByLogin indicates an expected call of GetUserBalanceByLogin.
+func (mr *MockIUserStorageMockRecorder) GetUserBalanceByLogin(ctx, login interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBalanceByLogin", reflect.TypeOf((*MockIUserStorage)(nil).GetUserBalanceByLogin), ctx, login)
+}
+
 // GetUserByLoginAndPasswordHash mocks base method.
 func (m *MockIUserStorage) GetUserByLoginAndPasswordHash(ctx context.Context, login, passwordHash string) (*dto.UserEntity, error) {
 	m.ctrl.T.Helper()
@@ -131,4 +146,57 @@ func (m *MockIOrderStorage) SaveOrder(ctx context.Context, order *dto.OrderEntit
 func (mr *MockIOrderStorageMockRecorder) SaveOrder(ctx, order interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveOrder", reflect.TypeOf((*MockIOrderStorage)(nil).SaveOrder), ctx, order)
+}
+
+// MockIWithdrawalStorage is a mock of IWithdrawalStorage interface.
+type MockIWithdrawalStorage struct {
+	ctrl     *gomock.Controller
+	recorder *MockIWithdrawalStorageMockRecorder
+}
+
+// MockIWithdrawalStorageMockRecorder is the mock recorder for MockIWithdrawalStorage.
+type MockIWithdrawalStorageMockRecorder struct {
+	mock *MockIWithdrawalStorage
+}
+
+// NewMockIWithdrawalStorage creates a new mock instance.
+func NewMockIWithdrawalStorage(ctrl *gomock.Controller) *MockIWithdrawalStorage {
+	mock := &MockIWithdrawalStorage{ctrl: ctrl}
+	mock.recorder = &MockIWithdrawalStorageMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockIWithdrawalStorage) EXPECT() *MockIWithdrawalStorageMockRecorder {
+	return m.recorder
+}
+
+// GetBalanceWithdrawalsByUserLogin mocks base method.
+func (m *MockIWithdrawalStorage) GetBalanceWithdrawalsByUserLogin(ctx context.Context, userLogin string) ([]dto.BalanceWithdrawalEntity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBalanceWithdrawalsByUserLogin", ctx, userLogin)
+	ret0, _ := ret[0].([]dto.BalanceWithdrawalEntity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBalanceWithdrawalsByUserLogin indicates an expected call of GetBalanceWithdrawalsByUserLogin.
+func (mr *MockIWithdrawalStorageMockRecorder) GetBalanceWithdrawalsByUserLogin(ctx, userLogin interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBalanceWithdrawalsByUserLogin", reflect.TypeOf((*MockIWithdrawalStorage)(nil).GetBalanceWithdrawalsByUserLogin), ctx, userLogin)
+}
+
+// SaveBalanceWithdrawal mocks base method.
+func (m *MockIWithdrawalStorage) SaveBalanceWithdrawal(ctx context.Context, balanceWithdraw *dto.BalanceWithdrawalEntity) (*dto.BalanceWithdrawalEntity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveBalanceWithdrawal", ctx, balanceWithdraw)
+	ret0, _ := ret[0].(*dto.BalanceWithdrawalEntity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SaveBalanceWithdrawal indicates an expected call of SaveBalanceWithdrawal.
+func (mr *MockIWithdrawalStorageMockRecorder) SaveBalanceWithdrawal(ctx, balanceWithdraw interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveBalanceWithdrawal", reflect.TypeOf((*MockIWithdrawalStorage)(nil).SaveBalanceWithdrawal), ctx, balanceWithdraw)
 }

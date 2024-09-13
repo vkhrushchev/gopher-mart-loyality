@@ -9,13 +9,12 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"go.uber.org/zap"
 
 	"github.com/jmoiron/sqlx"
 )
 
-func init() {
-	fmt.Println("db: init...")
-}
+var log = zap.Must(zap.NewDevelopment()).Sugar()
 
 //go:embed migrations/*.sql
 var migrationsDir embed.FS

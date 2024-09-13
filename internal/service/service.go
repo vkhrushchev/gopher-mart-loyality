@@ -11,7 +11,7 @@ import (
 var log = zap.Must(zap.NewDevelopment()).Sugar()
 
 var (
-	ErrWithdrawNoFundsOnBalance = errors.New("service_withdraw: no found on balance")
+	ErrNoFundsOnBalance = errors.New("service_withdraw: no found on balance")
 )
 
 type IUserService interface {
@@ -25,7 +25,7 @@ type IOrderService interface {
 	GetOrders(ctx context.Context) ([]dto.OrderDomain, error)
 }
 
-type IWithDrawService interface {
-	MakeWithdraw(ctx context.Context, orderNumber string, sum float64) error
-	GetUserWithdraws(ctx context.Context) ([]dto.UserWithdrawDomain, error)
+type IWithdrawalService interface {
+	DoWithdrawal(ctx context.Context, orderNumber string, sum float64) error
+	GetUserWithdrawals(ctx context.Context) ([]dto.OrderWithdrawalDomain, error)
 }

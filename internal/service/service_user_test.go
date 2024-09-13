@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/dto"
+	"github.com/vkhrushchev/gopher-mart-loyality/internal/middleware"
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/storage"
 	mock_storage "github.com/vkhrushchev/gopher-mart-loyality/internal/storage/mock"
 )
@@ -161,21 +162,37 @@ func TestUserService_GetBalance(t *testing.T) {
 	tests := []struct {
 		name           string
 		args           args
+		prepareMocks   func(userStorageMock *mock_storage.MockIUserStorage)
 		expectedResult dto.UserBalanceDomain
 		expectedErr    error
 	}{
 		{
 			name: "success",
 			args: args{
-				ctx: context.Background(),
+				ctx: context.WithValue(context.Background(), middleware.UserLoginContextKey, "test_user"),
 			},
-			expectedResult: dto.UserBalanceDomain{},
-			expectedErr:    nil,
+			prepareMocks: func(userStorageMock *mock_storage.MockIUserStorage) {
+				userStorageMock.EXPECT().
+					GetUserBalanceByLogin(gomock.Any(), gomock.Any()).
+					Return(
+						&dto.UserBalanceEntity{
+							TotalSum:           10.5,
+							TotalWithdrawalSum: 0.5,
+						},
+						nil)
+			},
+			expectedResult: dto.UserBalanceDomain{
+				Current:    10.5,
+				Withdrawal: 0.5,
+			},
+			expectedErr: nil,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt.prepareMocks(userStorageMock)
+
 			result, err := userService.GetBalance(tt.args.ctx)
 			if err != nil && !errors.Is(err, tt.expectedErr) {
 				require.NoError(t, err, "error not expected")

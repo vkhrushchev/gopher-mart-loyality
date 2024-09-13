@@ -132,54 +132,54 @@ func (mr *MockIOrderServiceMockRecorder) PutOrder(ctx, orderNumber interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutOrder", reflect.TypeOf((*MockIOrderService)(nil).PutOrder), ctx, orderNumber)
 }
 
-// MockIWithDrawService is a mock of IWithDrawService interface.
-type MockIWithDrawService struct {
+// MockIWithdrawalService is a mock of IWithdrawalService interface.
+type MockIWithdrawalService struct {
 	ctrl     *gomock.Controller
-	recorder *MockIWithDrawServiceMockRecorder
+	recorder *MockIWithdrawalServiceMockRecorder
 }
 
-// MockIWithDrawServiceMockRecorder is the mock recorder for MockIWithDrawService.
-type MockIWithDrawServiceMockRecorder struct {
-	mock *MockIWithDrawService
+// MockIWithdrawalServiceMockRecorder is the mock recorder for MockIWithdrawalService.
+type MockIWithdrawalServiceMockRecorder struct {
+	mock *MockIWithdrawalService
 }
 
-// NewMockIWithDrawService creates a new mock instance.
-func NewMockIWithDrawService(ctrl *gomock.Controller) *MockIWithDrawService {
-	mock := &MockIWithDrawService{ctrl: ctrl}
-	mock.recorder = &MockIWithDrawServiceMockRecorder{mock}
+// NewMockIWithdrawalService creates a new mock instance.
+func NewMockIWithdrawalService(ctrl *gomock.Controller) *MockIWithdrawalService {
+	mock := &MockIWithdrawalService{ctrl: ctrl}
+	mock.recorder = &MockIWithdrawalServiceMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockIWithDrawService) EXPECT() *MockIWithDrawServiceMockRecorder {
+func (m *MockIWithdrawalService) EXPECT() *MockIWithdrawalServiceMockRecorder {
 	return m.recorder
 }
 
-// GetUserWithdraws mocks base method.
-func (m *MockIWithDrawService) GetUserWithdraws(ctx context.Context) ([]dto.UserWithdrawDomain, error) {
+// DoWithdrawal mocks base method.
+func (m *MockIWithdrawalService) DoWithdrawal(ctx context.Context, orderNumber string, sum float64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserWithdraws", ctx)
-	ret0, _ := ret[0].([]dto.UserWithdrawDomain)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetUserWithdraws indicates an expected call of GetUserWithdraws.
-func (mr *MockIWithDrawServiceMockRecorder) GetUserWithdraws(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserWithdraws", reflect.TypeOf((*MockIWithDrawService)(nil).GetUserWithdraws), ctx)
-}
-
-// MakeWithdraw mocks base method.
-func (m *MockIWithDrawService) MakeWithdraw(ctx context.Context, orderNumber string, sum float64) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MakeWithdraw", ctx, orderNumber, sum)
+	ret := m.ctrl.Call(m, "DoWithdrawal", ctx, orderNumber, sum)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// MakeWithdraw indicates an expected call of MakeWithdraw.
-func (mr *MockIWithDrawServiceMockRecorder) MakeWithdraw(ctx, orderNumber, sum interface{}) *gomock.Call {
+// DoWithdrawal indicates an expected call of DoWithdrawal.
+func (mr *MockIWithdrawalServiceMockRecorder) DoWithdrawal(ctx, orderNumber, sum interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MakeWithdraw", reflect.TypeOf((*MockIWithDrawService)(nil).MakeWithdraw), ctx, orderNumber, sum)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DoWithdrawal", reflect.TypeOf((*MockIWithdrawalService)(nil).DoWithdrawal), ctx, orderNumber, sum)
+}
+
+// GetUserWithdrawals mocks base method.
+func (m *MockIWithdrawalService) GetUserWithdrawals(ctx context.Context) ([]dto.OrderWithdrawalDomain, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserWithdrawals", ctx)
+	ret0, _ := ret[0].([]dto.OrderWithdrawalDomain)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserWithdrawals indicates an expected call of GetUserWithdrawals.
+func (mr *MockIWithdrawalServiceMockRecorder) GetUserWithdrawals(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserWithdrawals", reflect.TypeOf((*MockIWithdrawalService)(nil).GetUserWithdrawals), ctx)
 }

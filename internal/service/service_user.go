@@ -8,6 +8,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/dto"
+	"github.com/vkhrushchev/gopher-mart-loyality/internal/middleware"
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/storage"
 )
 
@@ -94,8 +95,18 @@ func (s *UserService) LoginUser(ctx context.Context, username string, password s
 }
 
 func (s *UserService) GetBalance(ctx context.Context) (dto.UserBalanceDomain, error) {
+	userLogin := ctx.Value(middleware.UserLoginContextKey).(string)
 	log.Infow(
-		"service: get user balance.")
+		"service: get user balance",
+		"username", userLogin)
 
-	return dto.UserBalanceDomain{}, nil
+	userBalanceEntity, err := s.userStorage.GetUserBalanceByLogin(ctx, userLogin)
+	if err != nil {
+		log.Errorw("service_user: unexpected storage error", "error", err.Error())
+	}
+
+	return dto.UserBalanceDomain{
+		Current:    userBalanceEntity.TotalSum,
+		Withdrawal: userBalanceEntity.TotalWithdrawalSum,
+	}, nil
 }

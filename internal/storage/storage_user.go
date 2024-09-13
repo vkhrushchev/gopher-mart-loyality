@@ -24,7 +24,7 @@ func NewUserStorage(db *sqlx.DB) *UserStorage {
 func (s *UserStorage) SaveUser(ctx context.Context, user *dto.UserEntity) (*dto.UserEntity, error) {
 	tx, err := s.db.BeginTxx(ctx, nil)
 	if err != nil {
-		log.Errorw("storage_user: error when begin *sqlx.TX when save user to DB", "error", err.Error())
+		log.Errorw("storage_user: error when begin *sqlx.TX", "error", err.Error())
 		return nil, err
 	}
 	defer func() {
@@ -42,12 +42,27 @@ func (s *UserStorage) SaveUser(ctx context.Context, user *dto.UserEntity) (*dto.
 			return nil, ErrEntityExists
 		}
 
-		log.Errorw("storage_user: unexpected error when save user to DB", "error", err.Error())
+		log.Errorw("storage_user: unexpected error when insert user to DB", "error", err.Error())
 		return nil, err
 	}
 
+	userBalanceEntity := dto.UserBalanceEntity{
+		UserLogin:          user.Login,
+		TotalSum:           0.0,
+		TotalWithdrawalSum: 0.0,
+	}
+	_, err = tx.NamedExecContext(
+		ctx,
+		"insert into user_balance (user_login, total_sum, total_withdrawal_sum) values (:user_login, :total_sum, :total_withdrawal_sum)",
+		&userBalanceEntity,
+	)
+	if err != nil {
+		log.Errorw("storage_user: unexpected storage error", "error", err.Error())
+		return nil, ErrUnexpextedDBError
+	}
+
 	if err := tx.Commit(); err != nil {
-		log.Errorw("storage_user: error when commit *sqlx.TX when save user to DB", "error", err.Error())
+		log.Errorw("storage_user: error when commit *sqlx.TX", "error", err.Error())
 		return nil, err
 	}
 
@@ -69,11 +84,32 @@ func (s *UserStorage) GetUserByLoginAndPasswordHash(ctx context.Context, login s
 		log.Errorw(
 			"storage_user: unexpected error when execute query",
 			"error",
-			err.Error(),
-		)
+			err.Error())
 
 		return nil, ErrUnexpextedDBError
 	}
 
 	return &userEntity, nil
+}
+
+func (s *UserStorage) GetUserBalanceByLogin(ctx context.Context, login string) (*dto.UserBalanceEntity, error) {
+	sqlxRow := s.db.QueryRowxContext(
+		ctx,
+		"select * from user_balance where user_login = $1",
+		login,
+	)
+
+	var userBalanceEntity dto.UserBalanceEntity
+	if err := sqlxRow.StructScan(&userBalanceEntity); err != nil && errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrEntityNotFound
+	} else if err != nil {
+		log.Errorw(
+			"storage_user: unexpected error when execute query",
+			"error",
+			err.Error())
+
+		return nil, ErrUnexpextedDBError
+	}
+
+	return &userBalanceEntity, nil
 }

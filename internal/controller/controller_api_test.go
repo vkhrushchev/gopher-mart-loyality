@@ -27,8 +27,8 @@ func TestAPIController_RegisterUser(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
+	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
+	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock)
 
 	tests := []struct {
 		name         string
@@ -123,19 +123,19 @@ func TestAPIController_LoginUser(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	withdrawServiceMock := mock_service.NewMockIWithdrawalService(mockController)
 	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
 		name         string
-		request      dto.APILoginUserReqest
+		request      dto.APILoginUserRequest
 		contentType  string
 		setupMocks   func(userServiceMock *mock_service.MockIUserService)
 		expectedCode int
 	}{
 		{
 			name: "success",
-			request: dto.APILoginUserReqest{
+			request: dto.APILoginUserRequest{
 				Login:    "test_login",
 				Password: "test_password",
 			},
@@ -147,7 +147,7 @@ func TestAPIController_LoginUser(t *testing.T) {
 		},
 		{
 			name: "unknown user and password",
-			request: dto.APILoginUserReqest{
+			request: dto.APILoginUserRequest{
 				Login:    "test_login",
 				Password: "test_password",
 			},
@@ -198,7 +198,7 @@ func TestAPIController_PutUserOrders(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	withdrawServiceMock := mock_service.NewMockIWithdrawalService(mockController)
 	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
@@ -268,14 +268,14 @@ func TestAPIController_GetUserOrders(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	withdrawServiceMock := mock_service.NewMockIWithdrawalService(mockController)
 	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
 		name                string
 		setupMocks          func(orderServiceMock *mock_service.MockIOrderService)
 		expectedCode        int
-		expectedAPIResponse []dto.APIGetUserOrderResponseEntry
+		expectedAPIResponse []dto.APIOrderResponse
 	}{
 		{
 			name: "success",
@@ -295,7 +295,7 @@ func TestAPIController_GetUserOrders(t *testing.T) {
 					)
 			},
 			expectedCode: http.StatusOK,
-			expectedAPIResponse: []dto.APIGetUserOrderResponseEntry{
+			expectedAPIResponse: []dto.APIOrderResponse{
 				{
 					Number:     "1111222233334444",
 					Status:     dto.OrderStatusNew,
@@ -340,7 +340,7 @@ func TestAPIController_GetUserOrders(t *testing.T) {
 
 			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
 			if w.Result().StatusCode == http.StatusOK {
-				var apiResponse []dto.APIGetUserOrderResponseEntry
+				var apiResponse []dto.APIOrderResponse
 				err := json.Unmarshal(w.Body.Bytes(), &apiResponse)
 				require.NoError(t, err, "unexpected error when parse response")
 
@@ -356,13 +356,13 @@ func TestAPIController_GetUserBalance(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	withdrawServiceMock := mock_service.NewMockIWithdrawalService(mockController)
 	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
 		name             string
 		setupMocks       func(userServiceMock *mock_service.MockIUserService)
-		expectedResponse *dto.APIGetUserBalanceResponse
+		expectedResponse *dto.APIUserBalance
 		expectedCode     int
 	}{
 		{
@@ -372,13 +372,13 @@ func TestAPIController_GetUserBalance(t *testing.T) {
 					GetBalance(gomock.Any()).
 					Return(
 						dto.UserBalanceDomain{
-							Current:  100.5,
-							Withdraw: 10.5,
+							Current:    100.5,
+							Withdrawal: 10.5,
 						},
 						nil,
 					)
 			},
-			expectedResponse: &dto.APIGetUserBalanceResponse{
+			expectedResponse: &dto.APIUserBalance{
 				Current:   100.5,
 				Withdrawn: 10.5,
 			},
@@ -396,7 +396,7 @@ func TestAPIController_GetUserBalance(t *testing.T) {
 
 			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
 			if w.Result().StatusCode == http.StatusOK {
-				var apiResponse dto.APIGetUserBalanceResponse
+				var apiResponse dto.APIUserBalance
 				err := json.Unmarshal(w.Body.Bytes(), &apiResponse)
 				require.NoError(t, err, "unexpected error when parse response")
 			}
@@ -410,63 +410,63 @@ func TestAPIController_WithdrawUserBalance(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	withdrawServiceMock := mock_service.NewMockIWithdrawalService(mockController)
 	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
 		name         string
-		apiRequest   dto.APIWithdrawUserBalanceRequest
-		setupMocks   func(withdrawService *mock_service.MockIWithDrawService)
+		apiRequest   dto.APIPutOrderWithdrawnRequest
+		setupMocks   func(withdrawService *mock_service.MockIWithdrawalService)
 		expectedCode int
 	}{
 		{
 			name: "success",
-			apiRequest: dto.APIWithdrawUserBalanceRequest{
+			apiRequest: dto.APIPutOrderWithdrawnRequest{
 				Order: "1111222233334444",
 				Sum:   10.5,
 			},
-			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+			setupMocks: func(withdrawService *mock_service.MockIWithdrawalService) {
 				withdrawService.EXPECT().
-					MakeWithdraw(gomock.Any(), gomock.Any(), gomock.Any()).
+					DoWithdrawal(gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(nil)
 			},
 			expectedCode: http.StatusOK,
 		},
 		{
 			name: "no funds on balance",
-			apiRequest: dto.APIWithdrawUserBalanceRequest{
+			apiRequest: dto.APIPutOrderWithdrawnRequest{
 				Order: "1111222233334444",
 				Sum:   10.5,
 			},
-			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+			setupMocks: func(withdrawService *mock_service.MockIWithdrawalService) {
 				withdrawService.EXPECT().
-					MakeWithdraw(gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(service.ErrWithdrawNoFundsOnBalance)
+					DoWithdrawal(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(service.ErrNoFundsOnBalance)
 			},
 			expectedCode: http.StatusPaymentRequired,
 		},
 		{
 			name: "wrong order number",
-			apiRequest: dto.APIWithdrawUserBalanceRequest{
+			apiRequest: dto.APIPutOrderWithdrawnRequest{
 				Order: "1111222233334444",
 				Sum:   10.5,
 			},
-			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+			setupMocks: func(withdrawService *mock_service.MockIWithdrawalService) {
 				withdrawService.EXPECT().
-					MakeWithdraw(gomock.Any(), gomock.Any(), gomock.Any()).
+					DoWithdrawal(gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(service.ErrOrderWrongNumber)
 			},
 			expectedCode: http.StatusUnprocessableEntity,
 		},
 		{
 			name: "internal server error",
-			apiRequest: dto.APIWithdrawUserBalanceRequest{
+			apiRequest: dto.APIPutOrderWithdrawnRequest{
 				Order: "1111222233334444",
 				Sum:   10.5,
 			},
-			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+			setupMocks: func(withdrawService *mock_service.MockIWithdrawalService) {
 				withdrawService.EXPECT().
-					MakeWithdraw(gomock.Any(), gomock.Any(), gomock.Any()).
+					DoWithdrawal(gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(errors.New("internal server error"))
 			},
 			expectedCode: http.StatusInternalServerError,
@@ -499,47 +499,47 @@ func TestAPIController_GetUserBalanaceWithdrawls(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithDrawService(mockController)
+	withdrawServiceMock := mock_service.NewMockIWithdrawalService(mockController)
 	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
 
 	tests := []struct {
 		name                string
-		setupMocks          func(withdrawService *mock_service.MockIWithDrawService)
-		expectedAPIResponse []dto.APIGetUserBalanaceWithdrawlsResponseEntry
+		setupMocks          func(withdrawService *mock_service.MockIWithdrawalService)
+		expectedAPIResponse []dto.APIOrderWithdrawn
 		expectedCode        int
 	}{
 		{
 			name: "success",
-			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+			setupMocks: func(withdrawService *mock_service.MockIWithdrawalService) {
 				withdrawService.EXPECT().
-					GetUserWithdraws(gomock.Any()).
+					GetUserWithdrawals(gomock.Any()).
 					Return(
-						[]dto.UserWithdrawDomain{
+						[]dto.OrderWithdrawalDomain{
 							{
-								Order:       "1111222233334444",
-								Sum:         10.5,
-								ProcessedAt: time.Date(2024, time.September, 5, 10, 0, 0, 0, time.UTC),
+								OrderNumber:   "1111222233334444",
+								WithdrawalSum: 10.5,
+								ProcessedAt:   time.Date(2024, time.September, 5, 10, 0, 0, 0, time.UTC),
 							},
 						},
 						nil,
 					)
 			},
-			expectedAPIResponse: []dto.APIGetUserBalanaceWithdrawlsResponseEntry{
+			expectedAPIResponse: []dto.APIOrderWithdrawn{
 				{
-					Order:       "1111222233334444",
-					Sum:         10.5,
-					ProcessedAt: time.Date(2024, time.September, 5, 10, 0, 0, 0, time.UTC),
+					OrderNumber:   "1111222233334444",
+					WithdrawalSum: 10.5,
+					ProcessedAt:   time.Date(2024, time.September, 5, 10, 0, 0, 0, time.UTC),
 				},
 			},
 			expectedCode: http.StatusOK,
 		},
 		{
 			name: "withdraws not found",
-			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+			setupMocks: func(withdrawService *mock_service.MockIWithdrawalService) {
 				withdrawService.EXPECT().
-					GetUserWithdraws(gomock.Any()).
+					GetUserWithdrawals(gomock.Any()).
 					Return(
-						[]dto.UserWithdrawDomain{},
+						[]dto.OrderWithdrawalDomain{},
 						nil,
 					)
 			},
@@ -547,9 +547,9 @@ func TestAPIController_GetUserBalanaceWithdrawls(t *testing.T) {
 		},
 		{
 			name: "internal server error",
-			setupMocks: func(withdrawService *mock_service.MockIWithDrawService) {
+			setupMocks: func(withdrawService *mock_service.MockIWithdrawalService) {
 				withdrawService.EXPECT().
-					GetUserWithdraws(gomock.Any()).
+					GetUserWithdrawals(gomock.Any()).
 					Return(
 						nil,
 						errors.New("internal server error"),
@@ -569,7 +569,7 @@ func TestAPIController_GetUserBalanaceWithdrawls(t *testing.T) {
 
 			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
 			if w.Result().StatusCode == http.StatusOK {
-				var apiResponse []dto.APIGetUserBalanaceWithdrawlsResponseEntry
+				var apiResponse []dto.APIOrderWithdrawn
 				err := json.Unmarshal(w.Body.Bytes(), &apiResponse)
 				require.NoError(t, err, "unexpected error when parse response")
 			}

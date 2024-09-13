@@ -10,14 +10,14 @@ type OrderDomain struct {
 }
 
 type UserBalanceDomain struct {
-	Current  float64
-	Withdraw float64
+	Current    float64
+	Withdrawal float64
 }
 
-type UserWithdrawDomain struct {
-	Order       string
-	Sum         float64
-	ProcessedAt time.Time
+type OrderWithdrawalDomain struct {
+	OrderNumber   string
+	WithdrawalSum float64
+	ProcessedAt   time.Time
 }
 
 type AccuralInfoDomain struct {
