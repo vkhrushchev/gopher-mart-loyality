@@ -81,6 +81,11 @@ func (s *WithdrawlStorage) GetBalanceWithdrawalsByUserLogin(ctx context.Context,
 		return nil, ErrUnexpextedDBError
 	}
 
+	if sqlxRows.Err() != nil {
+		log.Errorw("storage_withdrawl: unexpected db error", "error", sqlxRows.Err())
+		return nil, ErrUnexpextedDBError
+	}
+
 	balanceWithdrawalEntities := make([]dto.BalanceWithdrawalEntity, 0)
 	for sqlxRows.Next() {
 		var balanceWithdrawalEntity dto.BalanceWithdrawalEntity

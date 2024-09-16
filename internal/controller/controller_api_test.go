@@ -103,6 +103,7 @@ func TestAPIController_RegisterUser(t *testing.T) {
 			r.Header.Add("Content-Type", tt.contentType)
 
 			w := httptest.NewRecorder()
+			defer w.Result().Body.Close()
 
 			apiController.RegisterUser(w, r)
 
@@ -184,6 +185,7 @@ func TestAPIController_LoginUser(t *testing.T) {
 			r.Header.Add("Content-Type", tt.contentType)
 
 			w := httptest.NewRecorder()
+			defer w.Result().Body.Close()
 
 			apiController.LoginUser(w, r)
 
@@ -274,6 +276,7 @@ func TestAPIController_PutOrder(t *testing.T) {
 
 			r := httptest.NewRequest(http.MethodPost, "/api/user/orders", strings.NewReader(tt.orderdNumber))
 			w := httptest.NewRecorder()
+			defer w.Result().Body.Close()
 
 			apiController.PutUserOrder(w, r)
 
@@ -361,6 +364,7 @@ func TestAPIController_GetUserOrders(t *testing.T) {
 
 			r := httptest.NewRequest(http.MethodGet, "/api/user/orders", nil)
 			w := httptest.NewRecorder()
+			defer w.Result().Body.Close()
 
 			apiController.GetUserOrders(w, r)
 
@@ -423,6 +427,7 @@ func TestAPIController_GetUserBalance(t *testing.T) {
 
 			r := httptest.NewRequest(http.MethodGet, "/api/user/balance", nil)
 			w := httptest.NewRecorder()
+			defer w.Result().Body.Close()
 
 			apiController.GetUserBalance(w, r)
 
@@ -523,6 +528,7 @@ func TestAPIController_WithdrawUserBalance(t *testing.T) {
 			)
 			r.Header.Set("Content-Type", "application/json")
 			w := httptest.NewRecorder()
+			defer w.Result().Body.Close()
 
 			apiController.WithdrawUserBalance(w, r)
 
@@ -608,6 +614,7 @@ func TestAPIController_GetUserBalanaceWithdrawls(t *testing.T) {
 
 			r := httptest.NewRequest(http.MethodGet, "/api/user/withdrawals", nil)
 			w := httptest.NewRecorder()
+			defer w.Result().Body.Close()
 
 			apiController.GetUserBalanaceWithdrawals(w, r)
 
