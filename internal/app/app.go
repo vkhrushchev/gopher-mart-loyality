@@ -5,6 +5,7 @@ import (
 
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/controller"
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/middleware"
+	"github.com/vkhrushchev/gopher-mart-loyality/internal/service"
 
 	"github.com/go-chi/chi/v5"
 
@@ -14,21 +15,24 @@ import (
 var log = zap.Must(zap.NewDevelopment()).Sugar()
 
 type GopherMartLoylityApp struct {
-	apiController *controller.APIController
-	router        chi.Router
-	runAddr       string
-	jwtSecretKey  string
+	apiController         *controller.APIController
+	accruallPullerService service.IAccrualPullerService
+	router                chi.Router
+	runAddr               string
+	jwtSecretKey          string
 }
 
 func NewGopherMartLoylityApp(
 	runAddr string,
 	jwtSecretKey string,
-	apiController *controller.APIController) *GopherMartLoylityApp {
+	apiController *controller.APIController,
+	accrualPullerService service.IAccrualPullerService) *GopherMartLoylityApp {
 	return &GopherMartLoylityApp{
-		apiController: apiController,
-		router:        chi.NewRouter(),
-		runAddr:       runAddr,
-		jwtSecretKey:  jwtSecretKey,
+		apiController:         apiController,
+		accruallPullerService: accrualPullerService,
+		router:                chi.NewRouter(),
+		runAddr:               runAddr,
+		jwtSecretKey:          jwtSecretKey,
 	}
 }
 
@@ -54,6 +58,8 @@ func (a *GopherMartLoylityApp) Run() error {
 		"app: GopherMartLoylityApp stating",
 		"runAddr", a.runAddr,
 	)
+
+	a.accruallPullerService.Start()
 
 	err := http.ListenAndServe(a.runAddr, a.router)
 	if err != nil {

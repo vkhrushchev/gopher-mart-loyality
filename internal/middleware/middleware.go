@@ -22,7 +22,6 @@ const (
 func NewJWTAuthMiddleware(jwtSecretKey string) func(handler http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			log.Infow("JWTAuth middleware called.", "path", r.URL.Path)
 			authTokenCookie, err := r.Cookie(AuthTokenCoockieName)
 			if err != nil && errors.Is(err, http.ErrNoCookie) {
 				log.Infow("middleware: no auth token cookie found")
@@ -30,7 +29,7 @@ func NewJWTAuthMiddleware(jwtSecretKey string) func(handler http.Handler) http.H
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			} else if err != nil {
-				log.Errorw("middleware: unexpected error when get cookie", "error", err.Error())
+				log.Errorw("middleware: unexpected error", "error", err.Error())
 
 				w.WriteHeader(http.StatusInternalServerError)
 				return
@@ -51,7 +50,7 @@ func NewJWTAuthMiddleware(jwtSecretKey string) func(handler http.Handler) http.H
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			} else if err != nil {
-				log.Errorw("middleware: unexpected error when parse jwt token", "error", err.Error())
+				log.Errorw("middleware: unexpected error", "error", err.Error())
 
 				w.WriteHeader(http.StatusInternalServerError)
 				return

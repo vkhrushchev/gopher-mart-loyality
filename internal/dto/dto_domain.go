@@ -21,4 +21,7 @@ type OrderWithdrawalDomain struct {
 }
 
 type AccuralInfoDomain struct {
+	OrderNumber string
+	OrderStatus AccrualStatus
+	Accrual     float64
 }

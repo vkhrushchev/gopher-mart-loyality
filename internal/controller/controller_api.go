@@ -15,19 +15,22 @@ import (
 var orderNumberRegexp = regexp.MustCompile(`\d+`)
 
 type APIController struct {
-	userService     service.IUserService
-	orderService    service.IOrderService
-	withdrawService service.IWithdrawalService
+	userService          service.IUserService
+	orderService         service.IOrderService
+	withdrawService      service.IWithdrawalService
+	accrualPullerService service.IAccrualPullerService
 }
 
 func NewAPIController(
 	userService service.IUserService,
 	orderService service.IOrderService,
-	withdrawService service.IWithdrawalService) *APIController {
+	withdrawService service.IWithdrawalService,
+	accrualPullerService service.IAccrualPullerService) *APIController {
 	return &APIController{
-		userService:     userService,
-		orderService:    orderService,
-		withdrawService: withdrawService,
+		userService:          userService,
+		orderService:         orderService,
+		withdrawService:      withdrawService,
+		accrualPullerService: accrualPullerService,
 	}
 }
 
@@ -170,6 +173,8 @@ func (c *APIController) PutUserOrder(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
+
+	c.accrualPullerService.AddGetAccrualInfoTask(r.Context(), orderNumber)
 
 	w.WriteHeader(http.StatusAccepted)
 }

@@ -25,6 +25,8 @@ type IUserStorage interface {
 
 type IOrderStorage interface {
 	SaveOrder(ctx context.Context, order *dto.OrderEntity) (*dto.OrderEntity, error)
+	UpdateOrderStatus(ctx context.Context, orderNumber string, orderStatus dto.OrderStatus) error
+	UpdateOrderStatusAndAccrual(ctx context.Context, orderNumber string, orderStatus dto.OrderStatus, accrual float64) error
 	GetOrderByOrderNumber(ctx context.Context, orderNumber string) (*dto.OrderEntity, error)
 	GetOrdersByUserLogin(ctx context.Context, userLogin string) ([]dto.OrderEntity, error)
 }

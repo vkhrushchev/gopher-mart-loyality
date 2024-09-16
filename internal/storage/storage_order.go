@@ -57,6 +57,83 @@ func (s *OrderStorage) SaveOrder(ctx context.Context, order *dto.OrderEntity) (*
 	return order, nil
 }
 
+func (s *OrderStorage) UpdateOrderStatus(ctx context.Context, orderNumber string, orderStatus dto.OrderStatus) error {
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		log.Errorw("storage_order: error when begin tx", "error", err.Error())
+		return err
+	}
+	defer func() {
+		tx.Rollback()
+	}()
+
+	_, err = tx.ExecContext(ctx, "update orders set status = $1 where number = $2", orderStatus, orderNumber)
+	if err != nil {
+		log.Errorw("storage_order: unexpected db error", "error", err.Error())
+		return ErrUnexpextedDBError
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Errorw("storage_order: unexpected db error", "error", err.Error())
+		return ErrUnexpextedDBError
+	}
+
+	return nil
+}
+
+func (s *OrderStorage) UpdateOrderStatusAndAccrual(ctx context.Context, orderNumber string, orderStatus dto.OrderStatus, accrual float64) error {
+	tx, err := s.db.BeginTxx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	if err != nil {
+		log.Errorw("storage_order: error when begin tx", "error", err.Error())
+		return err
+	}
+	defer func() {
+		tx.Rollback()
+	}()
+
+	sqlxRow := tx.QueryRowxContext(ctx, "select * from orders where number = $1", orderNumber)
+	if sqlxRow.Err() != nil {
+		log.Errorw(
+			"storage_order: unexpected db error",
+			"error", sqlxRow.Err().Error(),
+			"order_number", orderNumber)
+		return ErrUnexpextedDBError
+	}
+
+	var orderEntity dto.OrderEntity
+	if err := sqlxRow.StructScan(&orderEntity); err != nil {
+		log.Errorw("storage_order: unexpected db error", "error", err.Error())
+		return ErrUnexpextedDBError
+	}
+
+	_, err = tx.ExecContext(ctx, "select * from user_balance where user_login = $1 for update", orderEntity.UserLogin)
+	if err != nil {
+		log.Errorw("storage_order: unexpected db error", "error", err.Error())
+		return ErrUnexpextedDBError
+	}
+
+	_, err = tx.ExecContext(ctx, "update user_balance set total_sum = total_sum + $1 where user_login = $2", accrual, orderEntity.UserLogin)
+	if err != nil {
+		log.Errorw("storage_order: unexpected db error", "error", err.Error())
+		return ErrUnexpextedDBError
+	}
+
+	_, err = tx.ExecContext(ctx, "update orders set status = $1, accrual = $2 where number = $3", orderStatus, accrual, orderNumber)
+	if err != nil {
+		log.Errorw("storage_order: unexpected db error", "error", err.Error())
+		return ErrUnexpextedDBError
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Errorw("storage_order: unexpected db error", "error", err.Error())
+		return ErrUnexpextedDBError
+	}
+
+	return nil
+}
+
 func (s *OrderStorage) GetOrderByOrderNumber(ctx context.Context, orderNumber string) (*dto.OrderEntity, error) {
 	sqlxRow := s.db.QueryRowxContext(
 		ctx,

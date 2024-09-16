@@ -28,7 +28,13 @@ func TestAPIController_RegisterUser(t *testing.T) {
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
 	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := NewAPIController(
+		userServiceMock,
+		orderServiceMock,
+		withdrawalServiceMock,
+		accrualPullerServiceMock,
+	)
 
 	tests := []struct {
 		name         string
@@ -123,8 +129,14 @@ func TestAPIController_LoginUser(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
+	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := NewAPIController(
+		userServiceMock,
+		orderServiceMock,
+		withdrawalServiceMock,
+		accrualPullerServiceMock,
+	)
 
 	tests := []struct {
 		name         string
@@ -192,35 +204,43 @@ func TestAPIController_LoginUser(t *testing.T) {
 	}
 }
 
-func TestAPIController_PutUserOrders(t *testing.T) {
+func TestAPIController_PutOrder(t *testing.T) {
 	mockController := gomock.NewController(t)
 	defer mockController.Finish()
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
+	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := NewAPIController(
+		userServiceMock,
+		orderServiceMock,
+		withdrawalServiceMock,
+		accrualPullerServiceMock,
+	)
 
 	tests := []struct {
 		name         string
 		orderdNumber string
-		setupMocks   func(orderServiceMock *mock_service.MockIOrderService)
+		setupMocks   func(orderServiceMock *mock_service.MockIOrderService, accrualPullerServiceMock *mock_service.MockIAccrualPullerService)
 		expectedCode int
 	}{
 		{
 			name:         "success",
 			orderdNumber: "1111222233334444",
-			setupMocks: func(orderServiceMock *mock_service.MockIOrderService) {
+			setupMocks: func(orderServiceMock *mock_service.MockIOrderService, accrualPullerServiceMock *mock_service.MockIAccrualPullerService) {
 				orderServiceMock.EXPECT().
 					PutOrder(gomock.Any(), gomock.Any()).
 					Return(false, nil)
+
+				accrualPullerServiceMock.EXPECT().AddGetAccrualInfoTask(gomock.Any(), gomock.Any())
 			},
 			expectedCode: http.StatusAccepted,
 		},
 		{
 			name:         "exists",
 			orderdNumber: "1111222233334444",
-			setupMocks: func(orderServiceMock *mock_service.MockIOrderService) {
+			setupMocks: func(orderServiceMock *mock_service.MockIOrderService, accrualPullerServiceMock *mock_service.MockIAccrualPullerService) {
 				orderServiceMock.EXPECT().
 					PutOrder(gomock.Any(), gomock.Any()).
 					Return(true, nil)
@@ -230,7 +250,7 @@ func TestAPIController_PutUserOrders(t *testing.T) {
 		{
 			name:         "wrong order number",
 			orderdNumber: "1111222233334444",
-			setupMocks: func(orderServiceMock *mock_service.MockIOrderService) {
+			setupMocks: func(orderServiceMock *mock_service.MockIOrderService, accrualPullerServiceMock *mock_service.MockIAccrualPullerService) {
 				orderServiceMock.EXPECT().
 					PutOrder(gomock.Any(), gomock.Any()).
 					Return(false, service.ErrOrderWrongNumber)
@@ -240,7 +260,7 @@ func TestAPIController_PutUserOrders(t *testing.T) {
 		{
 			name:         "uploaded by another user",
 			orderdNumber: "1111222233334444",
-			setupMocks: func(orderServiceMock *mock_service.MockIOrderService) {
+			setupMocks: func(orderServiceMock *mock_service.MockIOrderService, accrualPullerServiceMock *mock_service.MockIAccrualPullerService) {
 				orderServiceMock.EXPECT().
 					PutOrder(gomock.Any(), gomock.Any()).
 					Return(false, service.ErrOrderUploadedByAnotherUser)
@@ -250,7 +270,7 @@ func TestAPIController_PutUserOrders(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.setupMocks(orderServiceMock)
+			tt.setupMocks(orderServiceMock, accrualPullerServiceMock)
 
 			r := httptest.NewRequest(http.MethodPost, "/api/user/orders", strings.NewReader(tt.orderdNumber))
 			w := httptest.NewRecorder()
@@ -268,8 +288,14 @@ func TestAPIController_GetUserOrders(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
+	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := NewAPIController(
+		userServiceMock,
+		orderServiceMock,
+		withdrawalServiceMock,
+		accrualPullerServiceMock,
+	)
 
 	tests := []struct {
 		name                string
@@ -356,8 +382,14 @@ func TestAPIController_GetUserBalance(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
+	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := NewAPIController(
+		userServiceMock,
+		orderServiceMock,
+		withdrawalServiceMock,
+		accrualPullerServiceMock,
+	)
 
 	tests := []struct {
 		name             string
@@ -410,8 +442,14 @@ func TestAPIController_WithdrawUserBalance(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
+	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := NewAPIController(
+		userServiceMock,
+		orderServiceMock,
+		withdrawalServiceMock,
+		accrualPullerServiceMock,
+	)
 
 	tests := []struct {
 		name         string
@@ -474,7 +512,7 @@ func TestAPIController_WithdrawUserBalance(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.setupMocks(withdrawServiceMock)
+			tt.setupMocks(withdrawalServiceMock)
 
 			requestBytes, err := json.Marshal(tt.apiRequest)
 			require.NoError(t, err, "error when marshal request")
@@ -499,8 +537,14 @@ func TestAPIController_GetUserBalanaceWithdrawls(t *testing.T) {
 
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
-	withdrawServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := NewAPIController(userServiceMock, orderServiceMock, withdrawServiceMock)
+	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := NewAPIController(
+		userServiceMock,
+		orderServiceMock,
+		withdrawalServiceMock,
+		accrualPullerServiceMock,
+	)
 
 	tests := []struct {
 		name                string
@@ -560,7 +604,7 @@ func TestAPIController_GetUserBalanaceWithdrawls(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.setupMocks(withdrawServiceMock)
+			tt.setupMocks(withdrawalServiceMock)
 
 			r := httptest.NewRequest(http.MethodGet, "/api/user/withdrawals", nil)
 			w := httptest.NewRecorder()

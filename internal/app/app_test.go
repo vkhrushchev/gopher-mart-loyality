@@ -26,9 +26,10 @@ func TestGopherMartLoylityApp_registerUser(t *testing.T) {
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
 	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock, accrualPullerServiceMock)
 
-	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController)
+	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController, accrualPullerServiceMock)
 	app.RegisterHandlers()
 
 	ts := httptest.NewServer(app.router)
@@ -75,9 +76,10 @@ func TestGopherMartLoylityApp_loginUser(t *testing.T) {
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
 	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock, accrualPullerServiceMock)
 
-	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController)
+	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController, accrualPullerServiceMock)
 	app.RegisterHandlers()
 
 	ts := httptest.NewServer(app.router)
@@ -124,9 +126,10 @@ func TestGopherMartLoylityApp_putUserOrders(t *testing.T) {
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
 	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock, accrualPullerServiceMock)
 
-	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController)
+	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController, accrualPullerServiceMock)
 	app.RegisterHandlers()
 
 	ts := httptest.NewServer(app.router)
@@ -176,9 +179,10 @@ func TestGopherMartLoylityApp_getUserOrders(t *testing.T) {
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
 	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock, accrualPullerServiceMock)
 
-	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController)
+	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController, accrualPullerServiceMock)
 	app.RegisterHandlers()
 
 	ts := httptest.NewServer(app.router)
@@ -228,9 +232,10 @@ func TestGopherMartLoylityApp_getUserBalance(t *testing.T) {
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
 	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock, accrualPullerServiceMock)
 
-	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController)
+	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController, accrualPullerServiceMock)
 	app.RegisterHandlers()
 
 	ts := httptest.NewServer(app.router)
@@ -280,9 +285,10 @@ func TestGopherMartLoylityApp_withdrawUserBalance(t *testing.T) {
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
 	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock, accrualPullerServiceMock)
 
-	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController)
+	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController, accrualPullerServiceMock)
 	app.RegisterHandlers()
 
 	ts := httptest.NewServer(app.router)
@@ -332,9 +338,10 @@ func TestGopherMartLoylityApp_getUserBalanaceWithdrawls(t *testing.T) {
 	userServiceMock := mock_service.NewMockIUserService(mockController)
 	orderServiceMock := mock_service.NewMockIOrderService(mockController)
 	withdrawalServiceMock := mock_service.NewMockIWithdrawalService(mockController)
-	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock)
+	accrualPullerServiceMock := mock_service.NewMockIAccrualPullerService(mockController)
+	apiController := controller.NewAPIController(userServiceMock, orderServiceMock, withdrawalServiceMock, accrualPullerServiceMock)
 
-	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController)
+	app := NewGopherMartLoylityApp(runAddr, jwtSecretKey, apiController, accrualPullerServiceMock)
 	app.RegisterHandlers()
 
 	ts := httptest.NewServer(app.router)

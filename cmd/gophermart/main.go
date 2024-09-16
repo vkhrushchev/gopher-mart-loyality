@@ -47,10 +47,12 @@ func main() {
 	userService := service.NewUserService(userStorage, "salt", "jwtSecretKey")
 	orderService := service.NewOrderService(orderStorage)
 	withdrawService := service.NewWithdrawalService(orderStorage, userStorage, withdrawalStorage)
+	accrualService := service.NewAccrualService(config.accrualSystemAddress)
+	accrualPullerService := service.NewAccrualPullerService(accrualService, orderService)
 
-	apiController := controller.NewAPIController(userService, orderService, withdrawService)
+	apiController := controller.NewAPIController(userService, orderService, withdrawService, accrualPullerService)
 
-	app := app.NewGopherMartLoylityApp(config.runAddr, "jwtSecretKey", apiController)
+	app := app.NewGopherMartLoylityApp(config.runAddr, "jwtSecretKey", apiController, accrualPullerService)
 	app.RegisterHandlers()
 
 	if err := app.Run(); err != nil {

@@ -132,6 +132,34 @@ func (mr *MockIOrderServiceMockRecorder) PutOrder(ctx, orderNumber interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutOrder", reflect.TypeOf((*MockIOrderService)(nil).PutOrder), ctx, orderNumber)
 }
 
+// UpdateOrderStatus mocks base method.
+func (m *MockIOrderService) UpdateOrderStatus(ctx context.Context, orderNumber string, orderStatus dto.OrderStatus) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateOrderStatus", ctx, orderNumber, orderStatus)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateOrderStatus indicates an expected call of UpdateOrderStatus.
+func (mr *MockIOrderServiceMockRecorder) UpdateOrderStatus(ctx, orderNumber, orderStatus interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderStatus", reflect.TypeOf((*MockIOrderService)(nil).UpdateOrderStatus), ctx, orderNumber, orderStatus)
+}
+
+// UpdateOrderStatusAndAccrual mocks base method.
+func (m *MockIOrderService) UpdateOrderStatusAndAccrual(ctx context.Context, orderNumber string, orderStatus dto.OrderStatus, accrual float64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateOrderStatusAndAccrual", ctx, orderNumber, orderStatus, accrual)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateOrderStatusAndAccrual indicates an expected call of UpdateOrderStatusAndAccrual.
+func (mr *MockIOrderServiceMockRecorder) UpdateOrderStatusAndAccrual(ctx, orderNumber, orderStatus, accrual interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderStatusAndAccrual", reflect.TypeOf((*MockIOrderService)(nil).UpdateOrderStatusAndAccrual), ctx, orderNumber, orderStatus, accrual)
+}
+
 // MockIWithdrawalService is a mock of IWithdrawalService interface.
 type MockIWithdrawalService struct {
 	ctrl     *gomock.Controller
@@ -182,4 +210,89 @@ func (m *MockIWithdrawalService) GetUserWithdrawals(ctx context.Context) ([]dto.
 func (mr *MockIWithdrawalServiceMockRecorder) GetUserWithdrawals(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserWithdrawals", reflect.TypeOf((*MockIWithdrawalService)(nil).GetUserWithdrawals), ctx)
+}
+
+// MockIAccrualService is a mock of IAccrualService interface.
+type MockIAccrualService struct {
+	ctrl     *gomock.Controller
+	recorder *MockIAccrualServiceMockRecorder
+}
+
+// MockIAccrualServiceMockRecorder is the mock recorder for MockIAccrualService.
+type MockIAccrualServiceMockRecorder struct {
+	mock *MockIAccrualService
+}
+
+// NewMockIAccrualService creates a new mock instance.
+func NewMockIAccrualService(ctrl *gomock.Controller) *MockIAccrualService {
+	mock := &MockIAccrualService{ctrl: ctrl}
+	mock.recorder = &MockIAccrualServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockIAccrualService) EXPECT() *MockIAccrualServiceMockRecorder {
+	return m.recorder
+}
+
+// GetAccrualInfo mocks base method.
+func (m *MockIAccrualService) GetAccrualInfo(ctx context.Context, orderNumber string) (*dto.AccuralInfoDomain, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAccrualInfo", ctx, orderNumber)
+	ret0, _ := ret[0].(*dto.AccuralInfoDomain)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAccrualInfo indicates an expected call of GetAccrualInfo.
+func (mr *MockIAccrualServiceMockRecorder) GetAccrualInfo(ctx, orderNumber interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccrualInfo", reflect.TypeOf((*MockIAccrualService)(nil).GetAccrualInfo), ctx, orderNumber)
+}
+
+// MockIAccrualPullerService is a mock of IAccrualPullerService interface.
+type MockIAccrualPullerService struct {
+	ctrl     *gomock.Controller
+	recorder *MockIAccrualPullerServiceMockRecorder
+}
+
+// MockIAccrualPullerServiceMockRecorder is the mock recorder for MockIAccrualPullerService.
+type MockIAccrualPullerServiceMockRecorder struct {
+	mock *MockIAccrualPullerService
+}
+
+// NewMockIAccrualPullerService creates a new mock instance.
+func NewMockIAccrualPullerService(ctrl *gomock.Controller) *MockIAccrualPullerService {
+	mock := &MockIAccrualPullerService{ctrl: ctrl}
+	mock.recorder = &MockIAccrualPullerServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockIAccrualPullerService) EXPECT() *MockIAccrualPullerServiceMockRecorder {
+	return m.recorder
+}
+
+// AddGetAccrualInfoTask mocks base method.
+func (m *MockIAccrualPullerService) AddGetAccrualInfoTask(ctx context.Context, orderNumber string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "AddGetAccrualInfoTask", ctx, orderNumber)
+}
+
+// AddGetAccrualInfoTask indicates an expected call of AddGetAccrualInfoTask.
+func (mr *MockIAccrualPullerServiceMockRecorder) AddGetAccrualInfoTask(ctx, orderNumber interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddGetAccrualInfoTask", reflect.TypeOf((*MockIAccrualPullerService)(nil).AddGetAccrualInfoTask), ctx, orderNumber)
+}
+
+// Start mocks base method.
+func (m *MockIAccrualPullerService) Start() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Start")
+}
+
+// Start indicates an expected call of Start.
+func (mr *MockIAccrualPullerServiceMockRecorder) Start() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockIAccrualPullerService)(nil).Start))
 }

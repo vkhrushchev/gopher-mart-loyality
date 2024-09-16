@@ -68,6 +68,39 @@ func (s *OrderService) PutOrder(ctx context.Context, orderNumber string) (bool, 
 	return false, nil
 }
 
+func (s *OrderService) UpdateOrderStatus(ctx context.Context, orderNumber string, orderStatus dto.OrderStatus) error {
+	log.Infow(
+		"serice_order: update order status",
+		"order_number", orderNumber,
+		"order_status", orderStatus,
+	)
+
+	err := s.orderStorage.UpdateOrderStatus(ctx, orderNumber, orderStatus)
+	if err != nil {
+		log.Errorw("service_order: unexpected storage error", "error", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (s *OrderService) UpdateOrderStatusAndAccrual(ctx context.Context, orderNumber string, orderStatus dto.OrderStatus, accrual float64) error {
+	log.Infow(
+		"serice_order: update order status and accrual",
+		"order_number", orderNumber,
+		"order_status", orderStatus,
+		"accrual", accrual,
+	)
+
+	err := s.orderStorage.UpdateOrderStatusAndAccrual(ctx, orderNumber, orderStatus, accrual)
+	if err != nil {
+		log.Errorw("service_order: unexpected storage error", "error", err.Error())
+		return err
+	}
+
+	return nil
+}
+
 func (s *OrderService) GetOrders(ctx context.Context) ([]dto.OrderDomain, error) {
 	log.Infow("service: get order list for user")
 

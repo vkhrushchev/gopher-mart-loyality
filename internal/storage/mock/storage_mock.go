@@ -148,6 +148,34 @@ func (mr *MockIOrderStorageMockRecorder) SaveOrder(ctx, order interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveOrder", reflect.TypeOf((*MockIOrderStorage)(nil).SaveOrder), ctx, order)
 }
 
+// UpdateOrderStatus mocks base method.
+func (m *MockIOrderStorage) UpdateOrderStatus(ctx context.Context, orderNumber string, orderStatus dto.OrderStatus) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateOrderStatus", ctx, orderNumber, orderStatus)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateOrderStatus indicates an expected call of UpdateOrderStatus.
+func (mr *MockIOrderStorageMockRecorder) UpdateOrderStatus(ctx, orderNumber, orderStatus interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderStatus", reflect.TypeOf((*MockIOrderStorage)(nil).UpdateOrderStatus), ctx, orderNumber, orderStatus)
+}
+
+// UpdateOrderStatusAndAccrual mocks base method.
+func (m *MockIOrderStorage) UpdateOrderStatusAndAccrual(ctx context.Context, orderNumber string, orderStatus dto.OrderStatus, accrual float64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateOrderStatusAndAccrual", ctx, orderNumber, orderStatus, accrual)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateOrderStatusAndAccrual indicates an expected call of UpdateOrderStatusAndAccrual.
+func (mr *MockIOrderStorageMockRecorder) UpdateOrderStatusAndAccrual(ctx, orderNumber, orderStatus, accrual interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderStatusAndAccrual", reflect.TypeOf((*MockIOrderStorage)(nil).UpdateOrderStatusAndAccrual), ctx, orderNumber, orderStatus, accrual)
+}
+
 // MockIWithdrawalStorage is a mock of IWithdrawalStorage interface.
 type MockIWithdrawalStorage struct {
 	ctrl     *gomock.Controller
