@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -43,18 +44,13 @@ func TestWithdrawalService_DoWithdrawal(t *testing.T) {
 			name: "success",
 			args: args{
 				ctx:         context.WithValue(context.Background(), middleware.UserLoginContextKey, "test_user"),
-				orderNumber: "0123456789",
+				orderNumber: goluhn.Generate(16),
 				sum:         10.5,
 			},
 			prepareMocks: func(
 				orderStorageMock *mock_storage.MockIOrderStorage,
 				userStorageMock *mock_storage.MockIUserStorage,
 				withdrawalStorageMock *mock_storage.MockIWithdrawalStorage) {
-				orderStorageMock.EXPECT().
-					GetOrderByOrderNumber(gomock.Any(), gomock.Any()).
-					Return(
-						&dto.OrderEntity{},
-						nil)
 				userStorageMock.EXPECT().
 					GetUserBalanceByLogin(gomock.Any(), gomock.Any()).
 					Return(
@@ -80,9 +76,6 @@ func TestWithdrawalService_DoWithdrawal(t *testing.T) {
 				orderStorageMock *mock_storage.MockIOrderStorage,
 				userStorageMock *mock_storage.MockIUserStorage,
 				withdrawalStorageMock *mock_storage.MockIWithdrawalStorage) {
-				orderStorageMock.EXPECT().
-					GetOrderByOrderNumber(gomock.Any(), gomock.Any()).
-					Return(nil, storage.ErrEntityNotFound)
 			},
 			expectedErr: ErrOrderWrongNumber,
 		},
@@ -90,18 +83,13 @@ func TestWithdrawalService_DoWithdrawal(t *testing.T) {
 			name: "no funds on balance",
 			args: args{
 				ctx:         context.WithValue(context.Background(), middleware.UserLoginContextKey, "test_user"),
-				orderNumber: "0123456789",
+				orderNumber: goluhn.Generate(16),
 				sum:         10.5,
 			},
 			prepareMocks: func(
 				orderStorageMock *mock_storage.MockIOrderStorage,
 				userStorageMock *mock_storage.MockIUserStorage,
 				withdrawalStorageMock *mock_storage.MockIWithdrawalStorage) {
-				orderStorageMock.EXPECT().
-					GetOrderByOrderNumber(gomock.Any(), gomock.Any()).
-					Return(
-						&dto.OrderEntity{},
-						nil)
 				userStorageMock.EXPECT().
 					GetUserBalanceByLogin(gomock.Any(), gomock.Any()).
 					Return(
@@ -117,18 +105,13 @@ func TestWithdrawalService_DoWithdrawal(t *testing.T) {
 			name: "storage no funds on balance",
 			args: args{
 				ctx:         context.WithValue(context.Background(), middleware.UserLoginContextKey, "test_user"),
-				orderNumber: "0123456789",
+				orderNumber: goluhn.Generate(16),
 				sum:         10.5,
 			},
 			prepareMocks: func(
 				orderStorageMock *mock_storage.MockIOrderStorage,
 				userStorageMock *mock_storage.MockIUserStorage,
 				withdrawalStorageMock *mock_storage.MockIWithdrawalStorage) {
-				orderStorageMock.EXPECT().
-					GetOrderByOrderNumber(gomock.Any(), gomock.Any()).
-					Return(
-						&dto.OrderEntity{},
-						nil)
 				userStorageMock.EXPECT().
 					GetUserBalanceByLogin(gomock.Any(), gomock.Any()).
 					Return(

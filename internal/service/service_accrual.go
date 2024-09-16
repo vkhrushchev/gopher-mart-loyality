@@ -16,21 +16,21 @@ var ErrAccrualUnknownOrder = fmt.Errorf("service_accrual: unknown order")
 var ErrAccrualRateLimitExceed = fmt.Errorf("servcice_accrual: rate limit exceed")
 
 type AccrualService struct {
-	accrualUrl string
+	accrualURL string
 	client     *http.Client
 }
 
-func NewAccrualService(accrualUrl string) *AccrualService {
+func NewAccrualService(accrualURL string) *AccrualService {
 	client := &http.Client{}
 
 	return &AccrualService{
-		accrualUrl: accrualUrl,
+		accrualURL: accrualURL,
 		client:     client,
 	}
 }
 
 func (s *AccrualService) GetAccrualInfo(ctx context.Context, orderNumber string) (*dto.AccuralInfoDomain, error) {
-	r, err := http.NewRequestWithContext(ctx, http.MethodGet, s.accrualUrl+"/api/orders/"+orderNumber, nil)
+	r, err := http.NewRequestWithContext(ctx, http.MethodGet, s.accrualURL+"/api/orders/"+orderNumber, nil)
 	if err != nil {
 		log.Errorw("service_accrual: error when build request", "error", err.Error())
 		return nil, err

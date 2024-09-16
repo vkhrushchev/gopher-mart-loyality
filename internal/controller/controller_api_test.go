@@ -103,15 +103,16 @@ func TestAPIController_RegisterUser(t *testing.T) {
 			r.Header.Add("Content-Type", tt.contentType)
 
 			w := httptest.NewRecorder()
-			defer w.Result().Body.Close()
 
 			apiController.RegisterUser(w, r)
+			res := w.Result()
+			defer res.Body.Close()
 
-			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
+			assert.Equal(t, tt.expectedCode, res.StatusCode)
 
-			if w.Result().StatusCode == http.StatusOK {
+			if res.StatusCode == http.StatusOK {
 				authCookiePresent := false
-				cookies := w.Result().Cookies()
+				cookies := res.Cookies()
 				for _, cookie := range cookies {
 					if cookie.Name == "AuthToken" {
 						authCookiePresent = true
@@ -185,15 +186,16 @@ func TestAPIController_LoginUser(t *testing.T) {
 			r.Header.Add("Content-Type", tt.contentType)
 
 			w := httptest.NewRecorder()
-			defer w.Result().Body.Close()
 
 			apiController.LoginUser(w, r)
+			res := w.Result()
+			defer res.Body.Close()
 
-			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
+			assert.Equal(t, tt.expectedCode, res.StatusCode)
 
-			if w.Result().StatusCode == http.StatusOK {
+			if res.StatusCode == http.StatusOK {
 				authCookiePresent := false
-				cookies := w.Result().Cookies()
+				cookies := res.Cookies()
 				for _, cookie := range cookies {
 					if cookie.Name == "AuthToken" {
 						authCookiePresent = true
@@ -276,11 +278,12 @@ func TestAPIController_PutOrder(t *testing.T) {
 
 			r := httptest.NewRequest(http.MethodPost, "/api/user/orders", strings.NewReader(tt.orderdNumber))
 			w := httptest.NewRecorder()
-			defer w.Result().Body.Close()
 
 			apiController.PutUserOrder(w, r)
+			res := w.Result()
+			defer res.Body.Close()
 
-			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
+			assert.Equal(t, tt.expectedCode, res.StatusCode)
 		})
 	}
 }
@@ -364,12 +367,13 @@ func TestAPIController_GetUserOrders(t *testing.T) {
 
 			r := httptest.NewRequest(http.MethodGet, "/api/user/orders", nil)
 			w := httptest.NewRecorder()
-			defer w.Result().Body.Close()
 
 			apiController.GetUserOrders(w, r)
+			res := w.Result()
+			defer res.Body.Close()
 
-			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
-			if w.Result().StatusCode == http.StatusOK {
+			assert.Equal(t, tt.expectedCode, res.StatusCode)
+			if res.StatusCode == http.StatusOK {
 				var apiResponse []dto.APIOrderResponse
 				err := json.Unmarshal(w.Body.Bytes(), &apiResponse)
 				require.NoError(t, err, "unexpected error when parse response")
@@ -427,12 +431,13 @@ func TestAPIController_GetUserBalance(t *testing.T) {
 
 			r := httptest.NewRequest(http.MethodGet, "/api/user/balance", nil)
 			w := httptest.NewRecorder()
-			defer w.Result().Body.Close()
 
 			apiController.GetUserBalance(w, r)
+			res := w.Result()
+			defer res.Body.Close()
 
-			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
-			if w.Result().StatusCode == http.StatusOK {
+			assert.Equal(t, tt.expectedCode, res.StatusCode)
+			if res.StatusCode == http.StatusOK {
 				var apiResponse dto.APIUserBalance
 				err := json.Unmarshal(w.Body.Bytes(), &apiResponse)
 				require.NoError(t, err, "unexpected error when parse response")
@@ -528,11 +533,12 @@ func TestAPIController_WithdrawUserBalance(t *testing.T) {
 			)
 			r.Header.Set("Content-Type", "application/json")
 			w := httptest.NewRecorder()
-			defer w.Result().Body.Close()
 
 			apiController.WithdrawUserBalance(w, r)
+			res := w.Result()
+			defer res.Body.Close()
 
-			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
+			assert.Equal(t, tt.expectedCode, res.StatusCode)
 		})
 	}
 }
@@ -614,12 +620,13 @@ func TestAPIController_GetUserBalanaceWithdrawls(t *testing.T) {
 
 			r := httptest.NewRequest(http.MethodGet, "/api/user/withdrawals", nil)
 			w := httptest.NewRecorder()
-			defer w.Result().Body.Close()
 
 			apiController.GetUserBalanaceWithdrawals(w, r)
+			res := w.Result()
+			defer res.Body.Close()
 
-			assert.Equal(t, tt.expectedCode, w.Result().StatusCode)
-			if w.Result().StatusCode == http.StatusOK {
+			assert.Equal(t, tt.expectedCode, res.StatusCode)
+			if res.StatusCode == http.StatusOK {
 				var apiResponse []dto.APIOrderWithdrawn
 				err := json.Unmarshal(w.Body.Bytes(), &apiResponse)
 				require.NoError(t, err, "unexpected error when parse response")
