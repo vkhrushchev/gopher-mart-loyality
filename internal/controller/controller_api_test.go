@@ -237,7 +237,7 @@ func TestAPIController_PutOrder(t *testing.T) {
 					PutOrder(gomock.Any(), gomock.Any()).
 					Return(false, nil)
 
-				accrualPullerServiceMock.EXPECT().AddGetAccrualInfoTask(gomock.Any(), gomock.Any())
+				accrualPullerServiceMock.EXPECT().AddGetAccrualInfoTask(gomock.Any())
 			},
 			expectedCode: http.StatusAccepted,
 		},

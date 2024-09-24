@@ -5,14 +5,12 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"regexp"
+	"strconv"
 
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/dto"
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/middleware"
 	"github.com/vkhrushchev/gopher-mart-loyality/internal/service"
 )
-
-var orderNumberRegexp = regexp.MustCompile(`\d+`)
 
 type APIController struct {
 	userService          service.IUserService
@@ -37,17 +35,13 @@ func NewAPIController(
 func (c *APIController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	log.Infow("RegisterUser handler called.")
 
-	if ok := checkContentType(r, w); !ok {
-		return
-	}
-
 	var apiRequest dto.APIRegisterUserRequest
 	if ok := parseRequest(r, w, &apiRequest); !ok {
 		return
 	}
 
 	err := c.userService.RegisterUser(r.Context(), apiRequest.Login, apiRequest.Password)
-	if err != nil && errors.Is(err, service.ErrUserExists) {
+	if errors.Is(err, service.ErrUserExists) {
 		log.Infow(
 			"controller_api: user exists",
 			"username", apiRequest.Login,
@@ -66,8 +60,11 @@ func (c *APIController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authToken, err := c.userService.LoginUser(r.Context(), apiRequest.Login, apiRequest.Password)
-	if err != nil && errors.Is(err, service.ErrWrongLoginOrPassword) {
+	if errors.Is(err, service.ErrWrongLoginOrPassword) {
 		log.Errorw("controller_api: unknown username or password")
+
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	} else if err != nil {
 		log.Errorw(
 			"controller_api: unexpected error",
@@ -85,17 +82,13 @@ func (c *APIController) RegisterUser(w http.ResponseWriter, r *http.Request) {
 func (c *APIController) LoginUser(w http.ResponseWriter, r *http.Request) {
 	log.Infow("LoginUser handler called.")
 
-	if ok := checkContentType(r, w); !ok {
-		return
-	}
-
 	var apiRequest dto.APILoginUserRequest
 	if ok := parseRequest(r, w, &apiRequest); !ok {
 		return
 	}
 
 	authToken, err := c.userService.LoginUser(r.Context(), apiRequest.Login, apiRequest.Password)
-	if err != nil && errors.Is(err, service.ErrWrongLoginOrPassword) {
+	if errors.Is(err, service.ErrWrongLoginOrPassword) {
 		log.Errorw("controller_api: unknown username or password")
 
 		w.WriteHeader(http.StatusUnauthorized)
@@ -119,6 +112,9 @@ func (c *APIController) PutUserOrder(w http.ResponseWriter, r *http.Request) {
 	requestBodyBytes, err := io.ReadAll(r.Body)
 	if err != nil && !errors.Is(err, io.EOF) {
 		log.Errorw("controller_api: error when read request body")
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	orderNumber := string(requestBodyBytes)
@@ -126,8 +122,8 @@ func (c *APIController) PutUserOrder(w http.ResponseWriter, r *http.Request) {
 		"controller_api: start processing order",
 		"order_number", orderNumber,
 	)
-	matched := orderNumberRegexp.Match([]byte(orderNumber))
-	if !matched {
+
+	if _, err := strconv.Atoi(orderNumber); err != nil {
 		log.Infow(
 			"controller_api: order number not matched by regexp",
 			"order_number", orderNumber,
@@ -138,7 +134,7 @@ func (c *APIController) PutUserOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	exist, err := c.orderService.PutOrder(r.Context(), orderNumber)
-	if err != nil && errors.Is(err, service.ErrOrderWrongNumber) {
+	if errors.Is(err, service.ErrOrderWrongNumber) {
 		log.Infow(
 			"controller_api: wrong order number",
 			"order_number", orderNumber,
@@ -146,7 +142,7 @@ func (c *APIController) PutUserOrder(w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		return
-	} else if err != nil && errors.Is(err, service.ErrOrderUploadedByAnotherUser) {
+	} else if errors.Is(err, service.ErrOrderUploadedByAnotherUser) {
 		log.Infow(
 			"controller_api: order uploaded by another user",
 			"order_number", orderNumber,
@@ -174,7 +170,7 @@ func (c *APIController) PutUserOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c.accrualPullerService.AddGetAccrualInfoTask(r.Context(), orderNumber)
+	c.accrualPullerService.AddGetAccrualInfoTask(orderNumber)
 
 	w.WriteHeader(http.StatusAccepted)
 }
@@ -238,22 +234,18 @@ func (c *APIController) GetUserBalance(w http.ResponseWriter, r *http.Request) {
 func (c *APIController) WithdrawUserBalance(w http.ResponseWriter, r *http.Request) {
 	log.Infow("WithdrawUserBalance handler called.")
 
-	if ok := checkContentType(r, w); !ok {
-		return
-	}
-
 	var apiRequest dto.APIPutOrderWithdrawnRequest
 	if ok := parseRequest(r, w, &apiRequest); !ok {
 		return
 	}
 
 	err := c.withdrawService.DoWithdrawal(r.Context(), apiRequest.Order, apiRequest.Sum)
-	if err != nil && errors.Is(err, service.ErrNoFundsOnBalance) {
+	if errors.Is(err, service.ErrNoFundsOnBalance) {
 		log.Infow("controller_api: no funds on balance")
 
 		w.WriteHeader(http.StatusPaymentRequired)
 		return
-	} else if err != nil && errors.Is(err, service.ErrOrderWrongNumber) {
+	} else if errors.Is(err, service.ErrOrderWrongNumber) {
 		log.Infow(
 			"controller_api: wrong order number",
 			"order_number", apiRequest.Order,
@@ -303,21 +295,6 @@ func (c *APIController) GetUserBalanaceWithdrawals(w http.ResponseWriter, r *htt
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(apiResponse)
-}
-
-func checkContentType(r *http.Request, w http.ResponseWriter) bool {
-	contentType := r.Header.Get("Content-Type")
-	if contentType != "application/json" {
-		log.Infow(
-			"controller_api: not supported \"Content-Type\" header",
-			"Content-Type", contentType,
-		)
-
-		w.WriteHeader(http.StatusBadRequest)
-		return false
-	}
-
-	return true
 }
 
 func parseRequest(r *http.Request, w http.ResponseWriter, apiRequest any) bool {

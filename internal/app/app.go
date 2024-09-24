@@ -38,8 +38,8 @@ func NewGopherMartLoylityApp(
 
 func (a *GopherMartLoylityApp) RegisterHandlers() {
 	a.router.Route("/api/user", func(r chi.Router) {
-		r.Post("/register", a.apiController.RegisterUser)
-		r.Post("/login", a.apiController.LoginUser)
+		r.Post("/register", middleware.CheckContentTypeMiddleware("application/json", a.apiController.RegisterUser))
+		r.Post("/login", middleware.CheckContentTypeMiddleware("application/json", a.apiController.LoginUser))
 
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.NewJWTAuthMiddleware(a.jwtSecretKey))
@@ -47,7 +47,7 @@ func (a *GopherMartLoylityApp) RegisterHandlers() {
 			r.Post("/orders", a.apiController.PutUserOrder)
 			r.Get("/orders", a.apiController.GetUserOrders)
 			r.Get("/balance", a.apiController.GetUserBalance)
-			r.Post("/balance/withdraw", a.apiController.WithdrawUserBalance)
+			r.Post("/balance/withdraw", middleware.CheckContentTypeMiddleware("application/json", a.apiController.WithdrawUserBalance))
 			r.Get("/withdrawals", a.apiController.GetUserBalanaceWithdrawals)
 		})
 	})

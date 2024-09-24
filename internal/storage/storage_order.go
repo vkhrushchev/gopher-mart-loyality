@@ -142,7 +142,7 @@ func (s *OrderStorage) GetOrderByOrderNumber(ctx context.Context, orderNumber st
 	)
 
 	var orderEntity dto.OrderEntity
-	if err := sqlxRow.StructScan(&orderEntity); err != nil && errors.Is(err, sql.ErrNoRows) {
+	if err := sqlxRow.StructScan(&orderEntity); errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrEntityNotFound
 	} else if err != nil {
 		log.Errorw(

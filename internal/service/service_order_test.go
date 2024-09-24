@@ -125,7 +125,7 @@ func TestOrderService_PutOrder(t *testing.T) {
 			result, err := orderService.PutOrder(tt.args.ctx, tt.args.orderNumber)
 			if err != nil && !errors.Is(err, tt.expectedErr) {
 				require.NoError(t, err, "error not expected")
-			} else if err != nil && errors.Is(err, tt.expectedErr) {
+			} else if errors.Is(err, tt.expectedErr) {
 				return
 			}
 

@@ -150,6 +150,6 @@ func (s *AccrualPullerService) startProcessAccrualServiceResult() {
 	}()
 }
 
-func (s *AccrualPullerService) AddGetAccrualInfoTask(ctx context.Context, orderNumber string) {
+func (s *AccrualPullerService) AddGetAccrualInfoTask(orderNumber string) {
 	s.startProcessingOrderCh <- orderNumber
 }

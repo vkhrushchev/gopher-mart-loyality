@@ -41,7 +41,7 @@ func (s *WithdrawalService) DoWithdrawal(ctx context.Context, orderNumber string
 	}
 
 	userBalance, err := s.userStorage.GetUserBalanceByLogin(ctx, userLogin)
-	if err != nil && errors.Is(err, storage.ErrEntityNotFound) {
+	if errors.Is(err, storage.ErrEntityNotFound) {
 		log.Errorw("service_withdrawal: user balance not found by login", "user_login", userLogin)
 		return err
 	} else if err != nil {
@@ -60,7 +60,7 @@ func (s *WithdrawalService) DoWithdrawal(ctx context.Context, orderNumber string
 		ProcessedAt:   time.Now().UTC(),
 	}
 	_, err = s.withdrawalStorage.SaveBalanceWithdrawal(ctx, &balanceWithdrawal)
-	if err != nil && errors.Is(err, storage.ErrNoFundsOnBalance) {
+	if errors.Is(err, storage.ErrNoFundsOnBalance) {
 		return ErrNoFundsOnBalance
 	} else if err != nil {
 		log.Errorw("service_withdrawal: unexpected storage error", "error", err.Error())

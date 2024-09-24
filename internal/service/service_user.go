@@ -46,7 +46,7 @@ func (s *UserService) RegisterUser(ctx context.Context, username string, passwor
 			PasswordHash: passwordHash,
 			Salt:         s.salt,
 		})
-	if err != nil && errors.Is(err, storage.ErrEntityExists) {
+	if errors.Is(err, storage.ErrEntityExists) {
 		return ErrUserExists
 	} else if err != nil {
 		return err
@@ -71,7 +71,7 @@ func (s *UserService) LoginUser(ctx context.Context, username string, password s
 	passwordHash := hex.EncodeToString(passwordHashBytes[:])
 
 	_, err := s.userStorage.GetUserByLoginAndPasswordHash(ctx, username, passwordHash)
-	if err != nil && errors.Is(err, storage.ErrEntityNotFound) {
+	if errors.Is(err, storage.ErrEntityNotFound) {
 		return "", ErrWrongLoginOrPassword
 	} else if err != nil {
 		return "", err

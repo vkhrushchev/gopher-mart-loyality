@@ -23,7 +23,7 @@ func NewJWTAuthMiddleware(jwtSecretKey string) func(handler http.Handler) http.H
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authTokenCookie, err := r.Cookie(AuthTokenCoockieName)
-			if err != nil && errors.Is(err, http.ErrNoCookie) {
+			if errors.Is(err, http.ErrNoCookie) {
 				log.Infow("middleware: no auth token cookie found")
 
 				w.WriteHeader(http.StatusUnauthorized)
@@ -44,7 +44,7 @@ func NewJWTAuthMiddleware(jwtSecretKey string) func(handler http.Handler) http.H
 					return []byte(jwtSecretKey), nil
 				},
 			)
-			if err != nil && errors.Is(err, jwt.ErrSignatureInvalid) {
+			if errors.Is(err, jwt.ErrSignatureInvalid) {
 				log.Infow("middleware: jwt signature is invalid")
 
 				w.WriteHeader(http.StatusUnauthorized)
@@ -60,5 +60,22 @@ func NewJWTAuthMiddleware(jwtSecretKey string) func(handler http.Handler) http.H
 
 			handler.ServeHTTP(w, r)
 		})
+	}
+}
+
+func CheckContentTypeMiddleware(expectedContentType string, next func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		contentType := r.Header.Get("Content-Type")
+		if contentType != expectedContentType {
+			log.Infow(
+				"middleaware: not supported \"Content-Type\" header",
+				"Content-Type", contentType,
+			)
+
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		next(w, r)
 	}
 }

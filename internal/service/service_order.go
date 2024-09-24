@@ -47,7 +47,7 @@ func (s *OrderService) PutOrder(ctx context.Context, orderNumber string) (bool, 
 		UploadedAt: time.Now().UTC(),
 	}
 	_, err := s.orderStorage.SaveOrder(ctx, orderEntity)
-	if err != nil && errors.Is(err, storage.ErrEntityExists) {
+	if errors.Is(err, storage.ErrEntityExists) {
 		existedOrderEntity, err := s.orderStorage.GetOrderByOrderNumber(ctx, orderNumber)
 		if err != nil {
 			log.Errorw(

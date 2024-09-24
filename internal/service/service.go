@@ -38,5 +38,5 @@ type IAccrualService interface {
 
 type IAccrualPullerService interface {
 	Start()
-	AddGetAccrualInfoTask(ctx context.Context, orderNumber string)
+	AddGetAccrualInfoTask(orderNumber string)
 }

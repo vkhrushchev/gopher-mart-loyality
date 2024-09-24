@@ -274,15 +274,15 @@ func (m *MockIAccrualPullerService) EXPECT() *MockIAccrualPullerServiceMockRecor
 }
 
 // AddGetAccrualInfoTask mocks base method.
-func (m *MockIAccrualPullerService) AddGetAccrualInfoTask(ctx context.Context, orderNumber string) {
+func (m *MockIAccrualPullerService) AddGetAccrualInfoTask(orderNumber string) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AddGetAccrualInfoTask", ctx, orderNumber)
+	m.ctrl.Call(m, "AddGetAccrualInfoTask", orderNumber)
 }
 
 // AddGetAccrualInfoTask indicates an expected call of AddGetAccrualInfoTask.
-func (mr *MockIAccrualPullerServiceMockRecorder) AddGetAccrualInfoTask(ctx, orderNumber interface{}) *gomock.Call {
+func (mr *MockIAccrualPullerServiceMockRecorder) AddGetAccrualInfoTask(orderNumber interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddGetAccrualInfoTask", reflect.TypeOf((*MockIAccrualPullerService)(nil).AddGetAccrualInfoTask), ctx, orderNumber)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddGetAccrualInfoTask", reflect.TypeOf((*MockIAccrualPullerService)(nil).AddGetAccrualInfoTask), orderNumber)
 }
 
 // Start mocks base method.

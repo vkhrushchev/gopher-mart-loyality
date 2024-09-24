@@ -78,7 +78,7 @@ func (s *UserStorage) GetUserByLoginAndPasswordHash(ctx context.Context, login s
 	)
 
 	var userEntity dto.UserEntity
-	if err := sqlxRow.StructScan(&userEntity); err != nil && errors.Is(err, sql.ErrNoRows) {
+	if err := sqlxRow.StructScan(&userEntity); errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrEntityNotFound
 	} else if err != nil {
 		log.Errorw(
@@ -100,7 +100,7 @@ func (s *UserStorage) GetUserBalanceByLogin(ctx context.Context, login string) (
 	)
 
 	var userBalanceEntity dto.UserBalanceEntity
-	if err := sqlxRow.StructScan(&userBalanceEntity); err != nil && errors.Is(err, sql.ErrNoRows) {
+	if err := sqlxRow.StructScan(&userBalanceEntity); errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrEntityNotFound
 	} else if err != nil {
 		log.Errorw(
